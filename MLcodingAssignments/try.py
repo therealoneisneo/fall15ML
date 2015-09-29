@@ -1,12 +1,12 @@
 import numpy as np
+import random
 
 
-def my_range(start, end, step):
-    while start <= end:
-        yield start
-        start += step
-        
-        
-for x in my_range(0, 1, 0.02):
-    print x
+indexarray1 = np.arange(20)
+indexarray2 = np.arange(20)
 
+np.random.shuffle(indexarray1)
+random.shuffle(indexarray2)
+
+print(indexarray1)
+print(indexarray2)

@@ -95,9 +95,6 @@ class ridgeRegression:
 #         return (test, training)
 
 
-#
-# for x in my_range(0, 1, 0.02):
-#     print x
 
 
     def cv(self, xVal, yVal):
@@ -126,8 +123,6 @@ class ridgeRegression:
                     if j != i:
                         training = np.hstack((training, fold_select[j]))
 
-    #             test, training = ridgeRegression.splitData(self, xVal, yVal, i, fold)
-
                 foldXVal = xVal[training[0]]
                 foldYVal = yVal[training[0]]
                 for j in range(1, len(training)):
@@ -152,9 +147,9 @@ class ridgeRegression:
             if sumError < minError:
                 minError = sumError
                 optimalLamda = lamda
-
             lamda = lamda + 0.02
         return optimalLamda
+
 
     def showRegPlot(self, theta = None):
         mpl.rcParams['legend.fontsize'] = 10
@@ -200,8 +195,8 @@ if __name__ == "__main__":
 
     rG = ridgeRegression()
     rG.loadDataSet("RRdata.txt")
-    theta = rG.ridgeRegress(rG.xVal, rG.yVal)
-    testlamda = rG.cv(rG.xVal, rG.yVal)
+    # theta = rG.ridgeRegress(rG.xVal, rG.yVal)
+    bestlamda = rG.cv(rG.xVal, rG.yVal)
     rG.showRegPlot()
 
 
