@@ -4,13 +4,11 @@ import matplotlib.pyplot as plt
 
 class linearRegression:
     "the class for ML linearRegression coding assignment"
-    bVal = None # constant parameter in the regression model
     xVal = None # x values, the input value
     yVal = None # y values, the target value
     theta = None # theta value
 
     def __init__(self):
-# 		self.xVal, self.yVal = loadDataSet(filename)
         self.xVal = None
         self.yVal = None
         self.theta = None
@@ -23,19 +21,12 @@ class linearRegression:
             tempstring = inputfile.readline()
             if tempstring == '':
                 break
-#             tempstring = tempstring.strip('\n')
             value = np.array(tempstring.strip('\n').split('\t'))
-#             value = np.array(value)
             tempvalue = []
             for i in range(len(value)):
                 tempvalue.append(float(value[i]))
             value = np.array(tempvalue)
-#             valueMatrix = np.concatenate(valueMatrix, value)
             valueMatrix.append(value)
-            
-#             
-#             self.xVal.append(float(value[1]))
-#             self.yVal.append(float(value[2]))
         inputfile.close()
         
         valueMatrix = np.asarray(valueMatrix).T
