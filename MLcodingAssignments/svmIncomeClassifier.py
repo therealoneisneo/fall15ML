@@ -9,8 +9,8 @@ from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
 
 
-class ridgeRegression:
-    "the class for ML ridgeRegression coding assignment"
+class svmIncomeClassifier:
+    "the class for ML SVM coding assignment"
     xVal = None # x values, the input value
     yVal = None # y values, the target value
     theta = None # theta value
@@ -64,16 +64,6 @@ class ridgeRegression:
         return self.theta
     
     
-    def standRegres(self, xVal, yVal):
-        
-        xVal = np.asarray(xVal, float)
-        yVal = np.asarray(yVal, float)
-        xValT = xVal.T
-        temp = np.linalg.linalg.dot(xValT, xVal)
-        temp = np.linalg.inv(temp)
-        temp = np.linalg.linalg.dot(temp, xValT)
-        self.theta = np.linalg.linalg.dot(temp, yVal)
-        return self.theta
     
     def errorTest(self, beta, xVal, yVal):
         error = 0
@@ -227,7 +217,6 @@ if __name__ == "__main__":
 
     rG = ridgeRegression()
     rG.loadDataSet("RRdata.txt")
-    rG.
     beta = rG.ridgeRegress(rG.xVal, rG.yVal)
     testlamda = rG.cv(rG.xVal, rG.yVal)
     print(testlamda)
