@@ -2,27 +2,24 @@ import numpy as np
 import random
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+import sklearn
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
+    
 
 
 
 class svmIncomeClassifier:
     "the class for ML SVM coding assignment"
-    xVal = None # x values, the input value
-    yVal = None # y values, the target value
-    theta = None # theta value
+#    xVal = None # x values, the input value
+#    yVal = None # y values, the target value
+#    theta = None # theta value
+    svm = 0
 
     def __init__(self):
-        self.xVal = None
-        self.yVal = None
-        self.theta = None
-        self.dimension = None # the dimensionality of x
-        self.instanceNum = 0
+        svm = 1
         
-
     def loadDataSet(self, filename):
         inputfile = open(filename)
         valueMatrix = []
@@ -30,24 +27,14 @@ class svmIncomeClassifier:
             tempstring = inputfile.readline()
             if tempstring == '':
                 break
-            value = np.array(tempstring.strip('\n').split(' '))
-            tempvalue = []
-            for i in range(len(value)):
-                tempvalue.append(float(value[i]))
-            value = np.array(tempvalue)
+            value = np.array(tempstring.strip('\n').split(', '))
+            # tempvalue = []
+            # for i in range(len(value)):
+            #     tempvalue.append(float(value[i]))
+            # value = np.array(tempvalue)
             valueMatrix.append(value)
-        inputfile.close()
-        
-        valueMatrix = np.asarray(valueMatrix).T
-        self.xVal = valueMatrix[:-1].T
-        self.yVal = valueMatrix[-1:].T
-        self.dimension = len(valueMatrix) - 2 
-        self.instanceNum = len(valueMatrix.T)
-        # in this ridge regression task, the constant entry is not considered at this stage
-        # plt.title("Scatter plot of input data")
-        # plt.scatter(self.xVal.T[1], self.yVal.T, 2)
-        # plt.show()
-        return
+        inputfile.close()   
+        return valueMatrix
      
     def ridgeRegress(self, xVal, yVal, lamda = 0):
         xVal = np.asarray(xVal, float)
@@ -215,12 +202,10 @@ class svmIncomeClassifier:
         
 if __name__ == "__main__":
 
-    rG = ridgeRegression()
-    rG.loadDataSet("RRdata.txt")
-    beta = rG.ridgeRegress(rG.xVal, rG.yVal)
-    testlamda = rG.cv(rG.xVal, rG.yVal)
-    print(testlamda)
-#     rG.showRegPlot()
+    svmC = svmIncomeClassifier()
+    trainingData = svmC.loadDataSet("adult.data")
+    testingData = svmC.loadDataSet("adult.test")
+    a = 0 
     
     
     
