@@ -115,31 +115,8 @@ class svmIncomeClassifier:
         trainX = scaler.fit_transform(trainX)
         testX = scaler.fit_transform(testX)
 
-        outfile = open("scores.txt","w")
+        outfile = open("scores2.txt","w")
 
-
-    
-        
-        for g in [0.0, 0.1, 0.5, 1.0, 5.0, 10.0, 100.0]:
-
-            clf = SVC(kernel = 'linear', gamma = g)
-            clf.fit(trainX, trainy)
-            print("kernel = linear , gamma = " + str(g) + ", score :  "+ str(clf.score(testX, testy)))
-            outfile.write("kernel = linear , gamma = " + str(g) + ", score :  "+ str(clf.score(testX, testy)) + '\n')
-
-        for g in [0.0, 0.1, 0.5, 1.0, 5.0, 10.0, 100.0]:
-            for coef in [0.0, 0.1, 0.5, 1.0, 5.0, 10.0, 100.0]:
-                for d in [1, 2, 3, 4, 5]:
-                    clf = SVC(kernel = 'poly', degree = d, gamma = g, coef0 = coef)
-                    clf.fit(trainX, trainy)
-                    print("kernel = poly , degree = " + str(d) + ", gamma = " + str(g) + ", coef0 = " + str(coef) + ", score :  "+ str(clf.score(testX, testy)))
-                    outfile.write("kernel = poly , degree = " + str(d) + ", gamma = " + str(g) + ", coef0 = " + str(coef) + ", score :  "+ str(clf.score(testX, testy)) + '\n')
-
-        for g in [0.0, 0.1, 0.5, 1.0, 5.0, 10.0, 100.0]:
-            clf = SVC(kernel = 'rbf', gamma = g)
-            clf.fit(trainX, trainy)
-            print("kernel = rbf , gamma = " + str(g) + ", score :  " + str(clf.score(testX, testy)))
-            outfile.write("kernel = rbf , gamma = " + str(g) + ", score :  " + str(clf.score(testX, testy)) + '\n')
 
         for g in [0.0, 0.1, 0.5, 1.0, 5.0, 10.0, 100.0]:
             for coef in [0.0, 0.1, 0.5, 1.0, 5.0, 10.0, 100.0]:

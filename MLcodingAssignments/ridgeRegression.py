@@ -11,15 +11,13 @@ from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
 class ridgeRegression:
     "the class for ML ridgeRegression coding assignment"
-    xVal = None # x values, the input value
-    yVal = None # y values, the target value
-    theta = None # theta value
-
+    
     def __init__(self):
         self.xVal = None
         self.yVal = None
         self.theta = None
         self.dimension = None # the dimensionality of x
+        optimalBeta = None
         self.instanceNum = 0
         
 
@@ -132,16 +130,19 @@ class ridgeRegression:
         
         indexarray = np.arange(len(xVal))
         random.seed(37)
-        random.shuffle(indexarray)
+        # random.shuffle(indexarray)
         
-        fold_select = np.array_split(indexarray, fold)
+        # fold_select = np.array_split(indexarray, fold)
         
         betaData = []
         errorData = []
         minError = 1000000000
-        minBeta = []
         optimalLamda = 0
         while(lamda <= 1):
+
+            random.shuffle(indexarray)
+            fold_select = np.array_split(indexarray, fold)
+
             beta = 0
             sumError = 0
             for i in range(fold): 
@@ -158,9 +159,9 @@ class ridgeRegression:
                 for j in range(1, len(training)):
                     foldXVal = np.vstack((foldXVal, xVal[training[j]]))
                     foldYVal = np.vstack((foldYVal, yVal[training[j]]))
+
                 beta = ridgeRegression.ridgeRegress(self, foldXVal, foldYVal, lamda).T
                 beta = np.hstack((beta0, beta))
-#                 np.hstack((beta0, beta))
                 if i == 0:
                     betaData = beta
                 else:
@@ -176,50 +177,33 @@ class ridgeRegression:
                     errorData = error
                 else:
                     errorData = np.vstack((errorData, error))
+            # print(str(lamda) + " : ")
+            # print(sumError)
             if sumError < minError:
                 minError = sumError
                 optimalLamda = lamda
-                minbeta = beta
+                self.optimalBeta = beta
             lamda = lamda + 0.02
         return optimalLamda
         
     def showRegPlot(self, theta = None):
-        mpl.rcParams['legend.fontsize'] = 10
         fig = plt.figure()
-        ax = fig.gca(projection='3d')
-        if theta == None:
-            theta = self.theta
-#         x1t = self.xVal.T[1]
-#         x2t = self.xVal.T[2]
-#         yt =  self.yVal.T
-#         order = len(theta) - 1
-       
-#         y = theta[0]
-#         for i in range(order):
-#             y = y + theta[i + 1] * pow(x, i + 1)
-#         ax.title("Result of linear regression") 
-#         ax.plot(x, y, color = "red",linewidth = 2) 
-        ax.scatter(self.xVal.T[1], self.xVal.T[2], self.yVal.T, c = 'r', marker = 'o') 
-        ax.plot_surface(self.xVal.T[1], self.xVal.T[2], self.yVal.T, rstride=1, cstride=1, cmap=cm.coolwarm, linewidth=0, antialiased=False)
-        x1 = np.linspace(-3.0, 3.0, 1000)
-        x2 = np.linspace(-6.0, 6.0, 1000)
-        y = self.theta[0] + self.theta[1] * x1 + self.theta[2] * x2
-        ax.plot(x1, x2, y, label = "test")
-#         ax.legend
+        ax = fig.add_subplot(111, projection = '3d')
+        ax.scatter(self.xVal.T[1], self.xVal.T[2], self.yVal.T[0], color = 'b', marker = 'o')
+        X = np.arange(-5, 5, 0.25)
+        Y = np.arange(-5, 5, 0.25)
+        X, Y = np.meshgrid(X, Y)
+        theta = np.asarray(theta[0])
+        print theta
+     #cmap=cm.coolwarm,
+
+        Z = theta[0] + theta[1] * X + theta[2] * Y
+        ax.plot_surface(X, Y, Z, rstride=1, cstride=1, color = 'y', linewidth=0, antialiased=False)
+        ax.set_zlim(-1.01, 1.01)
+
         plt.show()
-#         mpl.rcParams['legend.fontsize'] = 10
-#          
-#         fig = plt.figure()
-#         ax = fig.gca(projection='3d')
-#         theta = np.linspace(-4 * np.pi, 4 * np.pi, 100)
-#         z = np.linspace(-2, 2, 100)
-#         r = z**2 + 1
-#         x = r * np.sin(theta)
-#         y = r * np.cos(theta)
-#         ax.plot(x, y, z, label='parametric curve')
-#         ax.legend()
-#          
-#         plt.show()
+        return
+        
         
         
         
@@ -227,11 +211,11 @@ if __name__ == "__main__":
 
     rG = ridgeRegression()
     rG.loadDataSet("RRdata.txt")
-    rG.
-    beta = rG.ridgeRegress(rG.xVal, rG.yVal)
-    testlamda = rG.cv(rG.xVal, rG.yVal)
+
+     = rG.ridgeRegress(rG.xVal, rG.yVal)
+    bestlamda = rG.cv(rG.xVal, rG.yVal)
     print(testlamda)
-#     rG.showRegPlot()
+    rG.showRegPlot(rG.optimalBeta)
     
     
     
