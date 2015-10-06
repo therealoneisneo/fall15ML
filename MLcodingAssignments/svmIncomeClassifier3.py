@@ -115,16 +115,17 @@ class svmIncomeClassifier:
         trainX = scaler.fit_transform(trainX)
         testX = scaler.fit_transform(testX)
 
-        outfile = open("31.txt","w")
+        outfile = open("poly1.txt","w")
 
 
         for g in [0.0, 0.1, 0.5, 1.0]:
-            for coef in [0.0, 0.1, 0.5]:
-                for d in [1, 2, 3, 4, 5]:
-                    clf = SVC(kernel = 'poly', degree = d, gamma = g, coef0 = coef)
-                    clf.fit(trainX, trainy)
-                    print("kernel = poly , degree = " + str(d) + ", gamma = " + str(g) + ", coef0 = " + str(coef) + ", score :  "+ str(clf.score(testX, testy)))
-                    outfile.write("kernel = poly , degree = " + str(d) + ", gamma = " + str(g) + ", coef0 = " + str(coef) + ", score :  "+ str(clf.score(testX, testy)) + '\n')
+            for coef in [0.0, 0.1, 0.5, 1.0]:
+                for d in [1, 2, 3, 4]:
+                    for c in [1,10,50,100,500,1000]:
+                        clf = SVC(kernel = 'poly', degree = d, gamma = g, coef0 = coef)
+                        clf.fit(trainX, trainy)
+                        print("C = " + str(c) + "kernel = poly , degree = " + str(d) + ", gamma = " + str(g) + ", coef0 = " + str(coef) + ", score :  "+ str(clf.score(testX, testy)))
+                        outfile.write("C = " + str(c) + "kernel = poly , degree = " + str(d) + ", gamma = " + str(g) + ", coef0 = " + str(coef) + ", score :  "+ str(clf.score(testX, testy)) + '\n')
 
 
         # result = []
