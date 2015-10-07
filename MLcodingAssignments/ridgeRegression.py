@@ -17,7 +17,8 @@ class ridgeRegression:
         self.yVal = None
         self.theta = None
         self.dimension = None # the dimensionality of x
-        optimalBeta = None
+        self.optimalBeta = None
+        self.standBeta = None
         self.instanceNum = 0
         
 
@@ -39,7 +40,7 @@ class ridgeRegression:
         valueMatrix = np.asarray(valueMatrix).T
         self.xVal = valueMatrix[:-1].T
         self.yVal = valueMatrix[-1:].T
-        self.dimension = len(valueMatrix) - 2 
+        self.dimension = len(valueMatrix) - 1 
         self.instanceNum = len(valueMatrix.T)
         # in this ridge regression task, the constant entry is not considered at this stage
         # plt.title("Scatter plot of input data")
@@ -50,15 +51,20 @@ class ridgeRegression:
     def ridgeRegress(self, xVal, yVal, lamda = 0):
         xVal = np.asarray(xVal, float)
         yVal = np.asarray(yVal, float)
-        
-        xValT = xVal.T[1:] # in this ridge regression task, the constant entry is not considered at this stage
-        xVal = xValT.T
+        # if lamda != 0:
+        #     xValT = xVal.T[1:] # in this ridge regression task, the constant entry is not considered at this stage
+        #     xVal = xValT.T
+        #     lambdaI = np.identity(self.dimension) * lamda
+        # else:
+        xValT = xVal.T
         lambdaI = np.identity(self.dimension) * lamda
         temp = np.linalg.linalg.dot(xValT, xVal)
         temp = temp + lambdaI
         temp = np.linalg.inv(temp)
         temp = np.linalg.linalg.dot(temp, xValT)
         self.theta = np.linalg.linalg.dot(temp, yVal)
+        if lamda == 0:
+            self.standBeta = np.asarray(self.theta)
         return self.theta
     
     
@@ -81,6 +87,7 @@ class ridgeRegression:
             diff = np.abs(yVal[i] - temp)
             error = error + np.power(diff,2)
         return np.sqrt(error)
+        # return error
     
 #     def ridgeRegressCv(self, xVal, yVal, trainIndex, lamda = 0):
 #         xVal = np.asarray(xVal, float)
@@ -117,16 +124,16 @@ class ridgeRegression:
     def cv(self, xVal, yVal):
         xVal = np.asarray(xVal, float) 
         yVal = np.asarray(yVal, float)
-        
-        lamda = 0
+      
         fold = 10
         
-        beta0 = 0
+        # beta0 = 0
 
-        for i in range(self.instanceNum):
-            beta0 = beta0 + yVal[i]
-        beta0 = np.asarray([[float(beta0)/float(self.instanceNum)]])
-        
+        # for i in range(self.instanceNum):
+        #     beta0 = beta0 + yVal[i]
+        # beta0 = np.asarray([[float(beta0)/float(self.instanceNum)]])
+
+        # yVal = yVal - beta0
         
         indexarray = np.arange(len(xVal))
         random.seed(37)
@@ -138,9 +145,11 @@ class ridgeRegression:
         errorData = []
         minError = 1000000000
         optimalLamda = 0
+        lamda = 0.0
+        random.shuffle(indexarray)
         while(lamda <= 1):
 
-            random.shuffle(indexarray)
+            
             fold_select = np.array_split(indexarray, fold)
 
             beta = 0
@@ -161,7 +170,8 @@ class ridgeRegression:
                     foldYVal = np.vstack((foldYVal, yVal[training[j]]))
 
                 beta = ridgeRegression.ridgeRegress(self, foldXVal, foldYVal, lamda).T
-                beta = np.hstack((beta0, beta))
+                if lamda == 0:
+                    testbeta = ridgeRegression.standRegres(self, foldXVal, foldYVal)
                 if i == 0:
                     betaData = beta
                 else:
@@ -172,19 +182,33 @@ class ridgeRegression:
                     testXVal = np.vstack((testXVal, xVal[test[j]]))
                     testYVal = np.vstack((testYVal, yVal[test[j]]))
                 error = ridgeRegression.errorTest(self, beta, testXVal, testYVal)
-                sumError = sumError + error
-                if i == 0:
-                    errorData = error
-                else:
-                    errorData = np.vstack((errorData, error))
-            # print(str(lamda) + " : ")
-            # print(sumError)
+                sumError += error
+            if lamda == 0:
+                errorData = sumError
+            else:
+                errorData = np.vstack((errorData, sumError))
+            print(str(lamda) + " : ")
+            print(sumError)
             if sumError < minError:
                 minError = sumError
                 optimalLamda = lamda
-                self.optimalBeta = beta
+                avbeta = 0
+                for i in range(fold):
+                    avbeta += betaData[i] 
+                avbeta /= fold 
+                self.optimalBeta = np.asarray(avbeta)
             lamda = lamda + 0.02
+
+        # self.showCurvePlot(np.arange(0.02, 1, 0.02), errorData[1:])
+        print ridgeRegression.ridgeRegress(self, xVal, yVal, optimalLamda)
+
         return optimalLamda
+
+
+    def showCurvePlot(self, X, Y):
+        plt.figure()
+        plt.plot(X, Y)
+        plt.show()
         
     def showRegPlot(self, theta = None):
         fig = plt.figure()
@@ -192,13 +216,13 @@ class ridgeRegression:
         ax.scatter(self.xVal.T[1], self.xVal.T[2], self.yVal.T[0], color = 'b', marker = 'o')
         X = np.arange(-5, 5, 0.25)
         Y = np.arange(-5, 5, 0.25)
-        X, Y = np.meshgrid(X, Y)
-        theta = np.asarray(theta[0])
-        print theta
-     #cmap=cm.coolwarm,
-
+        X, Y = np.meshgrid(X, Y, sparse = True)
+#         theta = np.asarray(theta[0])
+#         print theta
+     # cmap=cm.coolwarm,
+# rstride=1, 0, antialiased=True linewidth=1
         Z = theta[0] + theta[1] * X + theta[2] * Y
-        ax.plot_surface(X, Y, Z, rstride=1, cstride=1, color = 'y', linewidth=0, antialiased=False)
+        ax.plot_surface(X, Y, Z,  color = 'y')
         ax.set_zlim(-1.01, 1.01)
 
         plt.show()
@@ -211,11 +235,17 @@ if __name__ == "__main__":
 
     rG = ridgeRegression()
     rG.loadDataSet("RRdata.txt")
-
-     = rG.ridgeRegress(rG.xVal, rG.yVal)
+    betaLR = rG.ridgeRegress(rG.xVal, rG.yVal)
+    test = rG.standRegres(rG.xVal, rG.yVal)
+    rG.showCurvePlot(rG.xVal.T[1], rG.xVal.T[2])
+    print(betaLR)
+    print(betaLR - test)
+    rG.showRegPlot(rG.standBeta)
+#     rG.showRegPlot(np.array((rG.standBeta[0,0],rG.standBeta[1,0],rG.standBeta[2,0])))
     bestlamda = rG.cv(rG.xVal, rG.yVal)
-    print(testlamda)
+    print(bestlamda)
     rG.showRegPlot(rG.optimalBeta)
+     
     
     
     

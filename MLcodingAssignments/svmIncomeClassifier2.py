@@ -122,6 +122,7 @@ class svmIncomeClassifier:
             for c in [1,5,10,50,100,500,1000]:
                 clf = SVC(C = c, kernel = 'rbf', gamma = g)
                 clf.fit(trainX, trainy)
+                
                 print("C = " + str(c) + "kernel = rbf , gamma = " + str(g) + ", score :  " + str(clf.score(testX, testy)))
                 outfile.write("C = " + str(c) + "kernel = rbf , gamma = " + str(g) + ", score :  " + str(clf.score(testX, testy)) + '\n')
 

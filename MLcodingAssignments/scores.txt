@@ -1,0 +1,7 @@
+kernel = rbf , gamma = 0.0, score :  0.826300595786
+kernel = rbf , gamma = 0.1, score :  0.83060008599
+kernel = rbf , gamma = 0.5, score :  0.846385357165
+kernel = rbf , gamma = 1.0, score :  0.84884220871
+kernel = rbf , gamma = 5.0, score :  0.846078250722
+kernel = rbf , gamma = 10.0, score :  0.844665561083
+kernel = rbf , gamma = 100.0, score :  0.806830047294

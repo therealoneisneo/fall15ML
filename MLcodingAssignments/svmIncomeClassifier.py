@@ -120,12 +120,26 @@ class svmIncomeClassifier:
 
     
         
-        for g in [0.0, 0.1, 0.5, 1.0, 5.0, 10.0, 100.0]:
-            for c in [1,5,10,50,100,500,1000]:
-                clf = SVC(C = c, kernel = 'linear', gamma = g)
-                clf.fit(trainX, trainy)
-                print("C = " + str(c) + "kernel = linear , gamma = " + str(g) + ", score :  "+ str(clf.score(testX, testy)))
-                outfile.write("C = " str(c) + ", kernel = linear , gamma = " + str(g) + ", score :  "+ str(clf.score(testX, testy)) + '\n')
+        # for g in [0.0, 0.1, 0.5, 1.0, 5.0, 10.0, 100.0]:
+        #     for c in [1,5,10,50]:
+        #         clf = SVC(C = c, kernel = 'linear', gamma = g)
+        #         clf.fit(trainX, trainy)
+        #         print("C = " + str(c) + ", kernel = linear , gamma = " + str(g) + ", score :  "+ str(clf.score(testX, testy)))
+        #         outfile.write("C = " + str(c) + ", kernel = linear , gamma = " + str(g) + ", score :  "+ str(clf.score(testX, testy)) + '\n')
+
+        clf = SVC(C = 1, kernel = 'rbf', gamma = 1.0)
+        clf.fit(trainX, trainy)
+        result = []
+        print("checking result...")
+        temp = clf.predict(testX)
+        for i in range(testNum):
+            if temp[i] == '0':
+                result.append("<=50K")
+            else:
+                result.append(">50K")
+
+            # result.append(np.logical_xor(temp, testy[i]))
+
 
         # for g in [0.0, 0.1, 0.5, 1.0, 5.0, 10.0, 100.0]:
         #     for coef in [0.0, 0.1, 0.5, 1.0, 5.0, 10.0, 100.0]:
@@ -139,31 +153,18 @@ class svmIncomeClassifier:
         #     clf = SVC(kernel = 'rbf', gamma = g)
         #     clf.fit(trainX, trainy)
         #     print("kernel = rbf , gamma = " + str(g) + ", score :  " + str(clf.score(testX, testy)))
-        #     outfile.write("kernel = rbf , gamma = " + str(g) + ", score :  " + str(clf.score(testX, testy)) + '\n')
-
-        # for g in [0.0, 0.1, 0.5, 1.0, 5.0, 10.0, 100.0]:
-        #     for coef in [0.0, 0.1, 0.5, 1.0, 5.0, 10.0, 100.0]:
-        #         clf = SVC(kernel = 'sigmoid', gamma = g)
-        #         clf.fit(trainX, trainy)
-        #         print("kernel = rbf , gamma = " + str(g) + ", score :  " + str(clf.score(testX, testy)))
-        #         outfile.write("kernel = rbf , gamma = " + str(g) + ", score :  " + str(clf.score(testX, testy)) + '\n')
-
-
-        
+        #     outfile.write("kernel = rbf , gamma = " + str(g) + ", score :  " + str(clf.score(testX, testy)) + '\n')        
 
 
         # result = []
         # clf = SVC()
         # clf.fit(trainX, trainy)
         # print(clf.score(testX, testy))
-        # print("checking result...")
-        # for i in range(testNum):
-        #     temp = clf.predict(testData[i])
-        #     result.append(np.logical_xor(temp, testy[i]))
+        
         outfile.close()
 
-        return clf.score(testX, testy)
-        
+        # return clf.score(testX, testy)
+        return np.asarray(result)
         
 if __name__ == "__main__":
 

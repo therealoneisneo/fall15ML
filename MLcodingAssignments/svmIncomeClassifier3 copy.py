@@ -119,13 +119,13 @@ class svmIncomeClassifier:
 
 
         for g in [0.0, 0.1, 0.5, 1.0]:
-            for coef in [ 5, 10, 50, 100]:
-                for d in [1, 2, 3, 4]:
-                    for c in [1,10,50,100,500,1000]:
-                        clf = SVC(kernel = 'poly', degree = d, gamma = g, coef0 = coef)
-                        clf.fit(trainX, trainy)
-                        print("C = " + str(c) + "kernel = poly , degree = " + str(d) + ", gamma = " + str(g) + ", coef0 = " + str(coef) + ", score :  "+ str(clf.score(testX, testy)))
-                        outfile.write("C = " + str(c) + "kernel = poly , degree = " + str(d) + ", gamma = " + str(g) + ", coef0 = " + str(coef) + ", score :  "+ str(clf.score(testX, testy)) + '\n')
+            for c in [1,10,50,100,1000]:
+                clf = SVC(kernel = 'poly', degree = 2, gamma = g, coef0 = 1)
+                clf.fit(trainX, trainy)
+                trainscore = str(clf.score(trainX, trainy))
+                testscore = str(clf.score(testX, testy))
+                print("C = " + str(c) + ", kernel = poly , gamma = " + str(g) + ", degree = 2 , train score :  " + trainscore + ", test score: " + testscore)
+                outfile.write("C = " + str(c) + ", kernel = poly , gamma = " + str(g) + ", degree = 2 , train score :  " + trainscore + ", test score: " + testscore + '\n')
 
 
         # result = []
