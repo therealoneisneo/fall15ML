@@ -50,30 +50,35 @@ class naiveBayesMulFeature:
 
 
 
-    def loadDataSet(self, filename):
-        inputfile = open(filename)
-        valueMatrix = []
-        while(1):
-            tempstring = inputfile.readline()
-            if tempstring == '':
-                break
-            value = np.array(tempstring.strip('\n').split(' '))
-            tempvalue = []
-            for i in range(len(value)):
-                tempvalue.append(float(value[i]))
-            value = np.array(tempvalue)
-            valueMatrix.append(value)
-        inputfile.close()
+    def loadData(self, fullpath):
+        if not os.path.isdir(fullpath):
+            print "invalid file path!"
+            return
+        for root, dirs, files in os.walk(fullpath): 
+            a = 1
+        # inputfile = open(filename)
+        # valueMatrix = []
+        # while(1):
+        #     tempstring = inputfile.readline()
+        #     if tempstring == '':
+        #         break
+        #     value = np.array(tempstring.strip('\n').split(' '))
+        #     tempvalue = []
+        #     for i in range(len(value)):
+        #         tempvalue.append(float(value[i]))
+        #     value = np.array(tempvalue)
+        #     valueMatrix.append(value)
+        # inputfile.close()
         
-        valueMatrix = np.asarray(valueMatrix).T
-        self.xVal = valueMatrix[:-1].T
-        self.yVal = valueMatrix[-1:].T
-        self.dimension = len(valueMatrix) - 1 
-        self.instanceNum = len(valueMatrix.T)
-        # in this ridge regression task, the constant entry is not considered at this stage
-        # plt.title("Scatter plot of input data")
-        # plt.scatter(self.xVal.T[1], self.yVal.T, 2)
-        # plt.show()
+        # valueMatrix = np.asarray(valueMatrix).T
+        # self.xVal = valueMatrix[:-1].T
+        # self.yVal = valueMatrix[-1:].T
+        # self.dimension = len(valueMatrix) - 1 
+        # self.instanceNum = len(valueMatrix.T)
+        # # in this ridge regression task, the constant entry is not considered at this stage
+        # # plt.title("Scatter plot of input data")
+        # # plt.scatter(self.xVal.T[1], self.yVal.T, 2)
+        # # plt.show()
         return
 
 
@@ -81,13 +86,14 @@ class naiveBayesMulFeature:
 
 if __name__ == "__main__":
     nBF = naiveBayesMulFeature()
-    TrainPosDir = "data_sets/training_set/pos/"
-    TrainNegDir = "data_sets/training_set/neg/"
-    TestPosDir = "data_sets/test_set/pos/"
-    TestNegDir = "data_sets/test_set/neg/"
-    for lists in os.listdir(rootDir): 
-        path = os.path.join(rootDir, lists) 
-        print path 
+    nBF.loadData("data_sets")
+    # TrainPosDir = "data_sets/training_set/pos/"
+    # TrainNegDir = "data_sets/training_set/neg/"
+    # TestPosDir = "data_sets/test_set/pos/"
+    # TestNegDir = "data_sets/test_set/neg/"
+    # for lists in os.listdir(rootDir): 
+    #     path = os.path.join(rootDir, lists) 
+    #     print path 
     # listdir = os.walk("data_sets/training_set/neg/")
     # print listdir
     # test = nBF.transfer("data_sets/training_set/neg/cv000_29416.txt", nBF.wordlist)
