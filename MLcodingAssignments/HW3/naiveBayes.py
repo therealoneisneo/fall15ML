@@ -47,15 +47,76 @@ class naiveBayesMulFeature:
         return wordcounts
 
 
-
+    def buildFeatMatrix(self, folderpath):
+        first = True
+        Matrix = []
+        for filename in os.listdir(folderpath):
+            fullpath = os.path.join(folderpath, filename)
+            if first:
+                Matrix = naiveBayesMulFeature.transfer(self, fullpath, self.wordlist)
+                first = False
+            else:
+                temp = naiveBayesMulFeature.transfer(self, fullpath, self.wordlist)
+                Matrix = np.vstack((Matrix, temp))
+        return Matrix
 
 
     def loadData(self, fullpath):
+        # outputfile = open("test.txt", "w")
         if not os.path.isdir(fullpath):
             print "invalid file path!"
             return
-        for root, dirs, files in os.walk(fullpath): 
-            a = 1
+        traindir = os.path.join(fullpath, "training_set")
+        testdir = os.path.join(fullpath, "test_set")
+        trainPosDir = os.path.join(traindir, "pos")
+        trainNegDir = os.path.join(traindir, "neg")
+        testPosDir = os.path.join(testdir, "pos")
+        testNegDir = os.path.join(testdir, "neg")
+        # train
+        print "building training pos"
+        XtrainPos = naiveBayesMulFeature.buildFeatMatrix(self, trainPosDir)
+        print "building training neg"
+        XtrainNeg = naiveBayesMulFeature.buildFeatMatrix(self, trainNegDir)
+        Xtrain = np.vstack((XtrainPos, XtrainNeg))
+        ytrainPos = np.ones(len(XtrainPos))
+        ytrainNeg = np.zeros(len(XtrainNeg))
+        ytrain = np.hstack((ytrainPos, ytrainNeg))
+
+        #test
+        print "building test pos"
+        XtestPos = naiveBayesMulFeature.buildFeatMatrix(self, testPosDir)
+        print "building test neg"
+        XtestNeg = naiveBayesMulFeature.buildFeatMatrix(self, testNegDir)
+        Xtest = np.vstack((XtestPos, XtestNeg))
+        ytestPos = np.ones(len(XtestPos))
+        ytestNeg = np.zeros(len(XtestNeg))
+        ytest = np.hstack((ytestPos, ytestNeg))
+
+        return Xtrain, Xtest, ytrain, ytest
+
+
+
+
+        # dir1 = os.path.join(dir1, "pos")
+        # print dir1
+        # for name in os.listdir(dir1):
+        #     print name
+        #     break
+        # for root, dirs, files in os.walk(fullpath): 
+        #     # for i in root:
+        #     #     print i
+        #     # print "111111111"
+            # for i in dirs:
+            #     print os.path.join(root, i)
+                
+            # print "2222222222"
+            # for i in files:
+            #     print i
+                # dirc = os.path.join(root, i)
+                # outputfile.write(dirc + '\n')
+                # outputfile.write(root)
+                # outputfile.write(i + '\n')
+        # outputfile.close()
         # inputfile = open(filename)
         # valueMatrix = []
         # while(1):
@@ -86,7 +147,9 @@ class naiveBayesMulFeature:
 
 if __name__ == "__main__":
     nBF = naiveBayesMulFeature()
-    nBF.loadData("data_sets")
+    a,b,c,d = nBF.loadData("data_sets")
+
+    f = 1
     # TrainPosDir = "data_sets/training_set/pos/"
     # TrainNegDir = "data_sets/training_set/neg/"
     # TestPosDir = "data_sets/test_set/pos/"

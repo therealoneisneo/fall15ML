@@ -1,8 +1,9 @@
 import numpy as np
 
 
-a = np.array(["love", "loving", "loves", "loved", "wonderful", "best", "great", "superb", "still", "beautiful", "bad", "worst", "stupid", "waste", "boring", "?", "!"])
-b = np.zeros(17)
-
-print a
-print b
+a = np.ones(10)
+b = np.zeros(5)
+c = np.hstack((a, b))
+c = np.asarray(c)
+c = c.T
+print c
