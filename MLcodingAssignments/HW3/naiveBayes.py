@@ -97,58 +97,36 @@ class naiveBayesMulFeature:
 
 
 
-        # dir1 = os.path.join(dir1, "pos")
-        # print dir1
-        # for name in os.listdir(dir1):
-        #     print name
-        #     break
-        # for root, dirs, files in os.walk(fullpath): 
-        #     # for i in root:
-        #     #     print i
-        #     # print "111111111"
-            # for i in dirs:
-            #     print os.path.join(root, i)
-                
-            # print "2222222222"
-            # for i in files:
-            #     print i
-                # dirc = os.path.join(root, i)
-                # outputfile.write(dirc + '\n')
-                # outputfile.write(root)
-                # outputfile.write(i + '\n')
-        # outputfile.close()
-        # inputfile = open(filename)
-        # valueMatrix = []
-        # while(1):
-        #     tempstring = inputfile.readline()
-        #     if tempstring == '':
-        #         break
-        #     value = np.array(tempstring.strip('\n').split(' '))
-        #     tempvalue = []
-        #     for i in range(len(value)):
-        #         tempvalue.append(float(value[i]))
-        #     value = np.array(tempvalue)
-        #     valueMatrix.append(value)
-        # inputfile.close()
+    def train(self, Xtrain, ytrain):
+        Vlen = len(Xtrain[0]) # the length of the vocabulary
+        PosVocabularyNum = 0 # the # of words in the whole Pos
+        NegVocabularyNum = 0 # the # of words in the whole Neg
+        PosCategoryFrequency = np.zeros(Vlen) # the frequency of each words inside Pos
+        NegCategoryFrequency = np.zeros(Vlen) # the frequency of each words inside Neg
+
+        for i in range(len(Xtrain)):
+            Wordcount = np.sum(Xtrain[i])
+            if ytrain[i]: # a positive instance
+                PosVocabularyNum += Wordcount
+                for j in range(Vlen):
+                    PosCategoryFrequency[j] += Xtrain[i,j]
+
+                # print Wordcount
+            else:
+                NegVocabularyNum += Wordcount
+                for j in range(Vlen):
+                    NegCategoryFrequency[j] += Xtrain[i,j]
+                # print Wordcount
         
-        # valueMatrix = np.asarray(valueMatrix).T
-        # self.xVal = valueMatrix[:-1].T
-        # self.yVal = valueMatrix[-1:].T
-        # self.dimension = len(valueMatrix) - 1 
-        # self.instanceNum = len(valueMatrix.T)
-        # # in this ridge regression task, the constant entry is not considered at this stage
-        # # plt.title("Scatter plot of input data")
-        # # plt.scatter(self.xVal.T[1], self.yVal.T, 2)
-        # # plt.show()
+        PosCategoryFrequency = (PosCategoryFrequencys) / PosVocabularyNum
+        NegCategoryFrequncy = NegCategoryFrequency / NegVocabularyNum
         return
-
-
 
 
 if __name__ == "__main__":
     nBF = naiveBayesMulFeature()
     a,b,c,d = nBF.loadData("data_sets")
-
+    nBF.train(a,c)
     f = 1
     # TrainPosDir = "data_sets/training_set/pos/"
     # TrainNegDir = "data_sets/training_set/neg/"
