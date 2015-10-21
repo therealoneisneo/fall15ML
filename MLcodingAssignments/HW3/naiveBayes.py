@@ -120,6 +120,7 @@ class naiveBayesMulFeature:
         
         PosCategoryFrequency = (PosCategoryFrequencys) / PosVocabularyNum
         NegCategoryFrequncy = NegCategoryFrequency / NegVocabularyNum
+        #test
         return
 
 
