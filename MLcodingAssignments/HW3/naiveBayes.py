@@ -6,17 +6,12 @@ class naiveBayesMulFeature:
     "the class for ML Bayes classifier coding assignment"
     
     def __init__(self):
-        # self.xVal = None
-        # self.yVal = None
-        # self.theta = None
-        # self.dimension = None # the dimensionality of x
-        # self.optimalBeta = None
-        # self.standBeta = None
-        # self.instanceNum = 0
-        self.wordnum = 18
+
+        self.Vnum = 15
         self.wordlist = ["love", "loving", "loves", "loved", "wonderful", "best", "great", "superb", "still", "beautiful", "bad", "worst", "stupid", "waste", "boring", "?", "!", "UNKNOWN"]
-        self.wordcounts = np.zeros(self.wordnum)
-        self.wordcounts = np.ones(self.wordnum)
+        self.ThetaPos = 0
+        self.ThetaNeg = 0
+
 
     def transfer(self, fileDj, vocabulary):
         inputfile = open(fileDj)
@@ -37,9 +32,7 @@ class naiveBayesMulFeature:
         return naiveBayesMulFeature.wordlistProcess(self, valueVector)
 
     def wordlistProcess(self, wordcounts): # unifiy the count result of "love" words in the wordlist 
-        # wordlist = np.delete(self.wordlist, 1)
-        # wordlist = np.delete(self.wordlist, 1)
-        # wordlist = np.delete(self.wordlist, 1)
+        
         wordcounts[0] = wordcounts[0] + wordcounts[1] + wordcounts[2] + wordcounts[3]
         wordcounts = np.delete(wordcounts, 1)
         wordcounts = np.delete(wordcounts, 1)
@@ -98,7 +91,7 @@ class naiveBayesMulFeature:
 
 
     def train(self, Xtrain, ytrain):
-        Vlen = len(Xtrain[0]) # the length of the vocabulary
+        Vlen = self.Vnum # the length of the vocabulary
         PosVocabularyNum = 0 # the # of words in the whole Pos
         NegVocabularyNum = 0 # the # of words in the whole Neg
         PosCategoryFrequency = np.zeros(Vlen) # the frequency of each words inside Pos
@@ -117,31 +110,35 @@ class naiveBayesMulFeature:
                 for j in range(Vlen):
                     NegCategoryFrequency[j] += Xtrain[i,j]
                 # print Wordcount
-        
-        PosCategoryFrequency = (PosCategoryFrequencys) / PosVocabularyNum
-        NegCategoryFrequncy = NegCategoryFrequency / NegVocabularyNum
-        #test
-        return
+        for i in range(Vlen):
+            PosCategoryFrequency[i] = (PosCategoryFrequency[i] + 1) / (PosVocabularyNum + Vlen)
+            NegCategoryFrequency[i] = (NegCategoryFrequency[i] + 1) / (NegVocabularyNum + Vlen) 
+        self.ThetaPos = np.log(PosCategoryFrequency)
+        self.ThetaNeg = np.log(NegCategoryFrequency)
+        return PosCategoryFrequency, NegCategoryFrequency
+
+
+    def test(self, Xtest, ytest):
+        TestNum = len(Xtest)
+        yPredict = np.zeros(TestNum)
+        ThetaPos = self.ThetaPos
+        ThetaNeg = self.ThetaNeg
+        for i in range(TestNum):
+            pPos = 0
+            pNeg = 0
+            for j in range(self.Vnum): # the unknown words are not taken into consideration here
+                pPos += Xtest[i, j] * ThetaPos[j]
+                pNeg += Xtest[i, j] * ThetaNeg[j]
+            if pPos > pNeg:
+                yPredict[i] = 1
+        Accuracy = 1 - float(np.sum(np.logical_xor(yPredict, ytest)))/TestNum
+        return yPredict, Accuracy
+
+
 
 
 if __name__ == "__main__":
     nBF = naiveBayesMulFeature()
-    a,b,c,d = nBF.loadData("data_sets")
-    nBF.train(a,c)
-    f = 1
-    # TrainPosDir = "data_sets/training_set/pos/"
-    # TrainNegDir = "data_sets/training_set/neg/"
-    # TestPosDir = "data_sets/test_set/pos/"
-    # TestNegDir = "data_sets/test_set/neg/"
-    # for lists in os.listdir(rootDir): 
-    #     path = os.path.join(rootDir, lists) 
-    #     print path 
-    # listdir = os.walk("data_sets/training_set/neg/")
-    # print listdir
-    # test = nBF.transfer("data_sets/training_set/neg/cv000_29416.txt", nBF.wordlist)
-    # print test
-
-    # nBF.wordlistProcess()
-    # print nBF.wordnum
-    # print nBF.wordlist
-    # print nBF.wordcounts
+    Xtrain, Xtest, ytrain, ytest = nBF.loadData("data_sets (actual)")
+    nBF.train(Xtrain,ytrain)
+    print nBF.test(Xtest, ytest)
