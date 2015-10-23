@@ -6,10 +6,12 @@ a = a.strip()
 
 for i in a:
 	if i == '\t':
+		print i
 		i = ' '
+		print i
 b = a.split(' ')
 
 
 
-print a
+# print a
 print b
