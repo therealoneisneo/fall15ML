@@ -175,6 +175,7 @@ class readLabel: # the class to read a label file
 				fullpath = os.path.join(dir1, files)
 				name, label, vad = Rdata.readFile(fullpath)
 				# print name
+				# print "***********************************************"
 				if count == 0:
 					# fileNames = np.asarray(name).flatten()
 					# fileLabels = np.asarray(label)
@@ -185,26 +186,34 @@ class readLabel: # the class to read a label file
 					fileNames = list(name)
 					fileLabels = list(label)
 					vadLabels = list(vad)
+					# print fileNames
 					count = 1
+					# print type(fileNames)
 				else:
 					# fileNames = np.hstack((fileNames, np.asarray(name).flatten()))
-					fileNames.append(list(name))
 
+					# fileNames.append(list(name))
+					name = list(name)
+					# print name
+					for i in name:
+						# print i
+						fileNames.append(i)
+					# print "**************************"
 
+					label = list(label)
+					for i in label:
+						fileLabels.append(i)
 					
-					# print label.shape
-					# readLabel.debug(self, fileLabels, "fileLabels")
-					# readLabel.debug(self, label, "label")
-					# fileLabels = np.hstack((fileLabels, label))
-					fileLabels.append(list(label))
+					# # fileLabels.append(list(label))
+					# for i in label:
+					# 	fileLabels += i
 
-					# vadLabels.append(vad)
-					# readLabel.debug(self, vadLabels, "vadLabels")
-					# readLabel.debug(self, vad, "vad")
-
-
-					# vadLabels = np.vstack((vadLabels, np.asarray(vad)))
-					vadLabels.append(list(vad))
+					vad = list(vad)
+					for i in vad:
+						vadLabels.append(i)
+					# # vadLabels.append(list(vad))
+					# for i in vad:
+					# 	vadLabels += i
 
 					# readLabel.debug(self, vadLabels, "vadLabels")
 		# readLabel.debug(self, fileNames, "fileNames")
@@ -223,7 +232,9 @@ class readLabel: # the class to read a label file
 
 		# debug filelabels line problem
 
+		# print fileNames
 		# print len(fileNames)
+
 		# print len(filelabels)
 		# print len(vadLabels)
 
