@@ -155,18 +155,18 @@ class readLabel: # the class to read a label file
 		return filenames, labelMatrix, VADMatrix
 
 	def labelVectorGen(self, rangeStart, rangeEnd):
-		gfileNames = [] #fileNames of all files
-		gCatLabels = [] #file cat labels of all files
-		gVADLabels = [] #file VAD labels of all files
+		fileNames = [] #fileNames of all files
+		catLabels = [] #file cat labels of all files
+		VADLabels = [] #file VAD labels of all files
 		rootDir1 = "Session"
 		Rdata = readLabel()
 		gcount = 0
 
 		for i in range(rangeStart, rangeEnd):
 		# for i in range(1, 2):
-			fileNames = [] # fileNames of current session
-			fileLabels = [] # fileLabels of current session
-			vadLabels = [] # vadLabels of current session
+			# fileNames = [] # fileNames of current session
+			# fileLabels = [] # fileLabels of current session
+			# vadLabels = [] # vadLabels of current session
 			dir1 = rootDir1 + str(i)
 			dir1 = os.path.join(dir1, "dialog")
 			dir1 = os.path.join(dir1, "EmoEvaluation")
@@ -176,41 +176,41 @@ class readLabel: # the class to read a label file
 				name, label, vad = Rdata.readFile(fullpath)
 				# print name
 				# print "***********************************************"
-				if count == 0:
-					# fileNames = np.asarray(name).flatten()
-					# fileLabels = np.asarray(label)
-					# # fileLabels = label
-					# vadLabels = np.asarray(vad)
+				# if count == 0:
+				# 	# fileNames = np.asarray(name).flatten()
+				# 	# fileLabels = np.asarray(label)
+				# 	# # fileLabels = label
+				# 	# vadLabels = np.asarray(vad)
 
 
-					fileNames = list(name)
-					fileLabels = list(label)
-					vadLabels = list(vad)
-					# print fileNames
-					count = 1
-					# print type(fileNames)
-				else:
+				# 	fileNames = list(name)
+				# 	fileLabels = list(label)
+				# 	vadLabels = list(vad)
+				# 	# print fileNames
+				# 	count = 1
+				# 	# print type(fileNames)
+				# else:
 					# fileNames = np.hstack((fileNames, np.asarray(name).flatten()))
 
 					# fileNames.append(list(name))
-					name = list(name)
-					# print name
-					for i in name:
-						# print i
-						fileNames.append(i)
-					# print "**************************"
+				name = list(name)
+				# print name
+				for i in name:
+					# print i
+					fileNames.append(i)
+				# print "**************************"
 
-					label = list(label)
-					for i in label:
-						fileLabels.append(i)
-					
-					# # fileLabels.append(list(label))
-					# for i in label:
-					# 	fileLabels += i
+				label = list(label)
+				for i in label:
+					catLabels.append(i)
+				
+				# # fileLabels.append(list(label))
+				# for i in label:
+				# 	fileLabels += i
 
-					vad = list(vad)
-					for i in vad:
-						vadLabels.append(i)
+				vad = list(vad)
+				for i in vad:
+					VADLabels.append(i)
 					# # vadLabels.append(list(vad))
 					# for i in vad:
 					# 	vadLabels += i
@@ -238,15 +238,18 @@ class readLabel: # the class to read a label file
 		# print len(filelabels)
 		# print len(vadLabels)
 
+		if os.path.isfile("names.txt"):
+			os.remove("names.txt")
+			os.remove("category.txt")
+			os.remove("vad.txt")
 
-
-		Rdata.saveToFile(fileNames, fileLabels,vadLabels, ["names.txt", "category.txt", "vad.txt" ])
+		Rdata.saveToFile(fileNames, catLabels,VADLabels, ["names.txt", "category.txt", "vad.txt" ])
 		return
 
 	def saveToFile(self, fileNames, catLabels, vadLabels, targetFileName):
-		namefile = open(targetFileName[0], 'w')
-		catfile = open(targetFileName[1], 'w')
- 		vadfile = open(targetFileName[2], 'w')
+		namefile = open(targetFileName[0], 'a')
+		catfile = open(targetFileName[1], 'a')
+ 		vadfile = open(targetFileName[2], 'a')
 		num = len(fileNames)
 		for i in range(num):
 			# write names
@@ -297,6 +300,7 @@ if __name__ == "__main__":
 
 	test = readLabel()
 	# name, label, vad = test.readFile("Ses01F_impro01.txt")
+
 	test.labelVectorGen(1, 2)
 	# print vad[0]
 	# test.logDebug(name, "name")
