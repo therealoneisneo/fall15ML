@@ -1,5 +1,8 @@
 import numpy as np
 import os
+from nltk import stem
+from sklearn.naive_bayes import MultinomialNB
+
 
 
 class naiveBayesMulFeature:
@@ -7,13 +10,25 @@ class naiveBayesMulFeature:
     
     def __init__(self):
 
+        # self.Vnum = 15
+        # self.wordlist = ["love", "loving", "loves", "loved", "wonderful", "best", "great", "superb", "still", "beautiful", "bad", "worst", "stupid", "waste", "boring", "?", "!", "UNKNOWN"]
+        # self.ThetaPos = 0
+        # self.ThetaNeg = 0
+
         self.Vnum = 15
-        self.wordlist = ["love", "loving", "loves", "loved", "wonderful", "best", "great", "superb", "still", "beautiful", "bad", "worst", "stupid", "waste", "boring", "?", "!", "UNKNOWN"]
+        wordlist = ["love", "wonderful", "best", "great", "superb", "still", "beautiful", "bad", "worst", "stupid", "waste", "boring", "?", "!", "UNKNOWN"]
         self.ThetaPos = 0
         self.ThetaNeg = 0
+        stemmer = stem.snowball.EnglishStemmer()
+        self.wordlist = []
+        for word in wordlist:
+            self.wordlist.append(stemmer.stem(word))
+
+        # print self.wordlist
 
 
     def transfer(self, fileDj, vocabulary):
+        stemmer = stem.snowball.EnglishStemmer()
         inputfile = open(fileDj)
         valueVector = np.zeros(len(vocabulary))
         while(1):
@@ -22,14 +37,16 @@ class naiveBayesMulFeature:
                 break
             value = np.array(tempstring.strip('\n').split(' '))
             for i in range(len(value)):
-                if value[i] in vocabulary:
-                    indx = vocabulary.index(value[i])
+                stemedword = stemmer.stem(value[i])
+                if stemedword in vocabulary:
+                    indx = vocabulary.index(stemedword)
 #                    print value[i]
                     valueVector[indx] += 1
                 else:
                     valueVector[-1] += 1 # the "UNKNOWN" charactor
         inputfile.close()
-        return naiveBayesMulFeature.wordlistProcess(self, valueVector)
+        return valueVector
+        # return naiveBayesMulFeature.wordlistProcess(self, valueVector)
 
     def wordlistProcess(self, wordcounts): # unifiy the count result of "love" words in the wordlist 
         
@@ -134,11 +151,29 @@ class naiveBayesMulFeature:
         Accuracy = 1 - float(np.sum(np.logical_xor(yPredict, ytest)))/TestNum
         return yPredict, Accuracy
 
+    # def experiment(self, Xtrain):
+    #     for i in range(len(Xtrain)):
+    #         for j in range(len(Xtrain[i])):
+    #             if Xtrain[i, j] > 0:
+    #                 Xtrain[i, j] = 1
+    #     return Xtrain   
+
+    def sklearnComp(self, Xtrain, ytrain, Xtest, ytest):
+        clf = MultinomialNB()
+        clf.fit(Xtrain, ytrain)
+        # MultinomialNB(alpha=1.0, class_prior=None, fit_prior=True)
+        # print(clf.predict(X[2]))
+
+        return clf.score(Xtest, ytest)
 
 
 
 if __name__ == "__main__":
     nBF = naiveBayesMulFeature()
-    Xtrain, Xtest, ytrain, ytest = nBF.loadData("data_sets (actual)")
+    Xtrain, Xtest, ytrain, ytest = nBF.loadData("data_sets")
+    # print Xtrain
+    # Xtrain = nBF.experiment(Xtrain)
+    # print Xtrain
     nBF.train(Xtrain,ytrain)
     print nBF.test(Xtest, ytest)
+    print nBF.sklearnComp(Xtrain, ytrain, Xtest, ytest) 

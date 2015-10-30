@@ -1,5 +1,7 @@
 import numpy as np
 import os
+from nltk import stem
+
 
 
 class naiveBayesBernFeature:
@@ -8,12 +10,20 @@ class naiveBayesBernFeature:
     def __init__(self):
 
         self.Vnum = 15
-        self.wordlist = ["love", "loving", "loves", "loved", "wonderful", "best", "great", "superb", "still", "beautiful", "bad", "worst", "stupid", "waste", "boring", "?", "!", "UNKNOWN"]
+        wordlist = ["love", "wonderful", "best", "great", "superb", "still", "beautiful", "bad", "worst", "stupid", "waste", "boring", "?", "!", "UNKNOWN"]
         self.ThetaPos = 0
         self.ThetaNeg = 0
+        stemmer = stem.snowball.EnglishStemmer()
+        self.wordlist = []
+        for word in wordlist:
+            self.wordlist.append(stemmer.stem(word))
+
+        # print self.wordlist
+
 
 
     def transfer(self, fileDj, vocabulary):
+        stemmer = stem.snowball.EnglishStemmer()
         inputfile = open(fileDj)
         valueVector = np.zeros(len(vocabulary))
         valueVector[-1] = 1 #  the "UNKNOWN" charactor
@@ -23,12 +33,14 @@ class naiveBayesBernFeature:
                 break
             value = np.array(tempstring.strip('\n').split(' '))
             for i in range(len(value)):
-                if value[i] in vocabulary:
-                    indx = vocabulary.index(value[i])
+                stemedword = stemmer.stem(value[i])
+                if stemedword in vocabulary:
+                    indx = vocabulary.index(stemedword)
 #                    print value[i]
                     valueVector[indx] = 1
         inputfile.close()
-        return naiveBayesBernFeature.wordlistProcess(self, valueVector)
+        # return naiveBayesBernFeature.wordlistProcess(self, valueVector)
+        return valueVector
 
     def wordlistProcess(self, wordcounts): # unifiy the count result of "love" words in the wordlist 
         
@@ -163,6 +175,9 @@ class naiveBayesBernFeature:
 if __name__ == "__main__":
     nBF = naiveBayesBernFeature()
     Xtrain, Xtest, ytrain, ytest = nBF.loadData("data_sets")
-
+    # print Xtrain
+    # print ytrain
+    # print Xtest
+    # print ytest
     print nBF.train(Xtrain,ytrain)
     print nBF.test(Xtest, ytest)
