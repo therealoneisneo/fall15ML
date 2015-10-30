@@ -118,7 +118,7 @@ def knn(train, test):
     xtest = test[0]
     ytest = test[1]
 
-    for neighbors in (1, 10, 50, 100, 200):
+    for neighbors in range(1, 11):
         for weight in ('uniform', 'distance'):
             knnClassifier = KNeighborsClassifier(n_neighbors = neighbors, weights = weight)
             knnClassifier.fit(xtrain,ytrain)
@@ -173,11 +173,10 @@ def pca_knn(train, test):
         xtrainReduced = pca.fit_transform(xtrain)
         xtestReduced = pca.fit_transform(xtest)
 
-        for neighbors in (1, 10, 50, 100, 200):
-            for weight in ('uniform', 'distance'):
-                knnClassifier = KNeighborsClassifier(n_neighbors = i)
-                knnClassifier.fit(xtrainReduced,ytrain)
-                y.append(knnClassifier.score(xtestReduced, ytest))
+        
+        knnClassifier = KNeighborsClassifier(n_neighbors = 4, weights = 'distance')
+        knnClassifier.fit(xtrainReduced,ytrain)
+        y.append(knnClassifier.score(xtestReduced, ytest))
     #Your code here
     return y
 
@@ -189,14 +188,14 @@ def pca_svm(train, test):
     ytrain = train[1]
     xtest = test[0]
     ytest = test[1]
+    for dim in (5, 10, 100, 200):
+        pca = RandomizedPCA(n_components = dim)
+        xtrainReduced = pca.fit_transform(xtrain)
+        xtestReduced = pca.fit_transform(xtest)
 
-    pca = RandomizedPCA(n_components = 100)
-    xtrainReduced = pca.fit_transform(xtrain)
-    xtestReduced = pca.fit_transform(xtest)
-
-    svmClassifier = SVC()
-    svmClassifier.fit(xtrainReduced,ytrain)
-    y = svmClassifier.score(xtestReduced, ytest)
+        svmClassifier = SVC(kernel = 'poly')
+        svmClassifier.fit(xtrainReduced,ytrain)
+        y.append(svmClassifier.score(xtestReduced, ytest))
     #Your code here
     return y
 
@@ -242,24 +241,24 @@ if __name__ == '__main__':
     # test and experiment
 
     combo_result = []
-    combo_result.append("decision_tree")
-    combo_result.append(decision_tree(train, test))
-    combo_result.append("knn")
-    combo_result.append(knn(train, test))
-    combo_result.append("neural_net")
-    combo_result.append(neural_net(train, test))
-    combo_result.append("svm")
-    combo_result.append(svm(train, test))
-    # combo_result.append("pca_knn")
-    # combo_result.append(pca_knn(train, test))
-    # combo_result.append("pca_svm")
-    # combo_result.append(pca_svm(train, test))
+    # combo_result.append("decision_tree")
+    # combo_result.append(decision_tree(train, test))
+    # combo_result.append("knn")
+    # combo_result.append(knn(train, test))
+    # combo_result.append("neural_net")
+    # combo_result.append(neural_net(train, test))
+    # combo_result.append("svm")
+    # combo_result.append(svm(train, test))
+    combo_result.append("pca_knn")
+    combo_result.append(pca_knn(train, test))
+    combo_result.append("pca_svm")
+    combo_result.append(pca_svm(train, test))
 
-    outfile = open("result_combo.txt", 'w')
-    for item in combo_result:
-        outfile.write(item)
-        outfile.write('\n')
-    outfile.close()
+    # outfile = open("result_combo.txt", 'w')
+    # for item in combo_result:
+    #     outfile.write(item)
+    #     outfile.write('\n')
+    # outfile.close()
 
     print combo_result
 
