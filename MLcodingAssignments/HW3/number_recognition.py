@@ -92,31 +92,48 @@ def decision_tree(train, test):
 
     y = []
     #Your code here
-    xtrain, ytrain, xtest, ytest = read_in_data(train, test)
+    # xtrain, ytrain, xtest, ytest = read_in_data(train, test)
+    xtrain = train[0]
+    ytrain = train[1]
+    xtest = test[0]
+    ytest = test[1]
 
 
-    Tclassifier = DecisionTreeClassifier()
-    Tclassifier.fit(xtrain,ytrain)
-    y = Tclassifier.score(xtest, ytest)
-
+    for criter in ('gini', 'entropy'):
+        for mDep in (3, 4, 5, None):
+            for maxfeat in (None, 'sqrt', 'log2'):
+                Tclassifier = DecisionTreeClassifier(criterion = 'gini', max_depth = mDep, max_features = maxfeat)
+                Tclassifier.fit(xtrain,ytrain)
+                y.append(Tclassifier.score(xtest, ytest))
    
     return y
 
 def knn(train, test):
     y = []
-    xtrain, ytrain, xtest, ytest = read_in_data(train, test)
+    # xtrain, ytrain, xtest, ytest = read_in_data(train, test)
     
-    for i in (1,3,5,7,9,11):
-        knnClassifier = KNeighborsClassifier(n_neighbors = i)
-        knnClassifier.fit(xtrain,ytrain)
-        y.append(knnClassifier.score(xtest, ytest))
+
+    xtrain = train[0]
+    ytrain = train[1]
+    xtest = test[0]
+    ytest = test[1]
+
+    for neighbors in (1, 10, 50, 100, 200):
+        for weight in ('uniform', 'distance'):
+            knnClassifier = KNeighborsClassifier(n_neighbors = neighbors, weights = weight)
+            knnClassifier.fit(xtrain,ytrain)
+            y.append(knnClassifier.score(xtest, ytest))
 
     #Your code here
     return y
 
 def neural_net(train, test):
     y = []
-    xtrain, ytrain, xtest, ytest = read_in_data(train, test)
+    # xtrain, ytrain, xtest, ytest = read_in_data(train, test)
+    xtrain = train[0]
+    ytrain = train[1]
+    xtest = test[0]
+    ytest = test[1]
 
     n_netClassifier = Perceptron()
     n_netClassifier.fit(xtrain,ytrain)
@@ -126,11 +143,16 @@ def neural_net(train, test):
 
 def svm(train, test):
     y = []
-    xtrain, ytrain, xtest, ytest = read_in_data(train, test)
+    # xtrain, ytrain, xtest, ytest = read_in_data(train, test)
+    xtrain = train[0]
+    ytrain = train[1]
+    xtest = test[0]
+    ytest = test[1]
 
-    svmClassifier = SVC()
-    svmClassifier.fit(xtrain,ytrain)
-    y = svmClassifier.score(xtest, ytest)
+    for ker in ('rbf', 'linear', 'poly'):
+        svmClassifier = SVC(kernel = ker)
+        svmClassifier.fit(xtrain,ytrain)
+        y.append(svmClassifier.score(xtest, ytest))
 
 
     #Your code here
@@ -138,57 +160,124 @@ def svm(train, test):
 
 def pca_knn(train, test):
     y = []
-    xtrain, ytrain, xtest, ytest = read_in_data(train, test)
-    print xtrain
-    print len(xtrain)
-    print len(xtrain[0])
-    pca = RandomizedPCA(n_components = 5)
-    xtrain = pca.transform(xtrain)
-    print xtrain
-    print len(xtrain)
-    print len(xtrain[0])
-    # y = pca_knnClassifier.score(xtest, ytest)
+    # xtrain, ytrain, xtest, ytest = read_in_data(train, test)
+    xtrain = train[0]
+    ytrain = train[1]
+    xtest = test[0]
+    ytest = test[1]
+
+    for dim in (5, 10, 100, 200):
+
+        pca = RandomizedPCA(n_components = dim)
+
+        xtrainReduced = pca.fit_transform(xtrain)
+        xtestReduced = pca.fit_transform(xtest)
+
+        for neighbors in (1, 10, 50, 100, 200):
+            for weight in ('uniform', 'distance'):
+                knnClassifier = KNeighborsClassifier(n_neighbors = i)
+                knnClassifier.fit(xtrainReduced,ytrain)
+                y.append(knnClassifier.score(xtestReduced, ytest))
     #Your code here
     return y
 
 def pca_svm(train, test):
     y = []
-    xtrain, ytrain, xtest, ytest = read_in_data(train, test)
-    print xtrain
-    print xtrain.shape()
-    pca_knnClassifier = RandomizedPCA(n_components = 5)
-    xtrain = pca_knnClassifier.fit_transform(xtrain)
+    # xtrain, ytrain, xtest, ytest = read_in_data(train, test)
+
+    xtrain = train[0]
+    ytrain = train[1]
+    xtest = test[0]
+    ytest = test[1]
+
+    pca = RandomizedPCA(n_components = 100)
+    xtrainReduced = pca.fit_transform(xtrain)
+    xtestReduced = pca.fit_transform(xtest)
+
+    svmClassifier = SVC()
+    svmClassifier.fit(xtrainReduced,ytrain)
+    y = svmClassifier.score(xtestReduced, ytest)
     #Your code here
     return y
 
 if __name__ == '__main__':
-    # model = sys.argv[1]
-    # train = sys.argv[2]
-    # test = sys.argv[3]
+    model = sys.argv[1]
+    train = sys.argv[2]
+    test = sys.argv[3]
 
 
     # hard code for testing and debug
 
-    model = "pcaknn"
-    train = "zip.train"
-    test = "zip.test"
+    # model = "pcasvm"
+    # train = "zip.train"
+    # test = "zip.test"
 
+
+    xtrain, ytrain, xtest, ytest = read_in_data(train, test)
+    train = (xtrain, ytrain)
+    test = (xtest, ytest)
 
     #----------------------------
 
 
 
-    if model == "dtree":
-        print(decision_tree(train, test))
-    elif model == "knn":
-        print(knn(train, test))
-    elif model == "net":
-        print(neural_net(train, test))
-    elif model == "svm":
-        print(svm(train, test))
-    elif model == "pcaknn":
-        print(pca_knn(train, test))
-    elif model == "pcasvm":
-        print(pca_svm(train, test))
-    else:
-        print("Invalid method selected!")
+    # if model == "dtree":
+    #     print(decision_tree(train, test))
+    # elif model == "knn":
+    #     print(knn(train, test))
+    # elif model == "net":
+    #     print(neural_net(train, test))
+    # elif model == "svm":
+    #     print(svm(train, test))
+    # elif model == "pcaknn":
+    #     print(pca_knn(train, test))
+    # elif model == "pcasvm":
+    #     print(pca_svm(train, test))
+    # else:
+    #     print("Invalid method selected!")
+
+    #-------------------------------------
+
+
+    # test and experiment
+
+    combo_result = []
+    combo_result.append("decision_tree")
+    combo_result.append(decision_tree(train, test))
+    combo_result.append("knn")
+    combo_result.append(knn(train, test))
+    combo_result.append("neural_net")
+    combo_result.append(neural_net(train, test))
+    combo_result.append("svm")
+    combo_result.append(svm(train, test))
+    # combo_result.append("pca_knn")
+    # combo_result.append(pca_knn(train, test))
+    # combo_result.append("pca_svm")
+    # combo_result.append(pca_svm(train, test))
+
+    outfile = open("result_combo.txt", 'w')
+    for item in combo_result:
+        outfile.write(item)
+        outfile.write('\n')
+    outfile.close()
+
+    print combo_result
+
+
+    #     print(decision_tree(train, test))
+    # elif model == "knn":
+    #     print(knn(train, test))
+    # elif model == "net":
+    #     print(neural_net(train, test))
+    # elif model == "svm":
+    #     print(svm(train, test))
+    # elif model == "pcaknn":
+    #     print(pca_knn(train, test))
+    # elif model == "pcasvm":
+    #     print(pca_svm(train, test))
+    # else:
+    #     print("Invalid method selected!")
+
+
+
+
