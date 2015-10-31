@@ -7,15 +7,20 @@ import numpy as np
 import wave as wv
 import os
 
+from pylab import*
+from scipy.io import wavfile
+
 class readAudio: # the class to read an audio file
 
-	def __init__(self, audioPath):
-		self.filePath = audioPath
+	def __init__(self, audioPath = None):
+		if audioPath != None:
+			self.filePath = audioPath
 		return
 
 
 	def readFile(self, audioPath):
 		self.filePath = audioPath
+
 		return
 
 
@@ -298,30 +303,34 @@ class readLabel: # the class to read a label file
 if __name__ == "__main__":
 	
 
-	test = readLabel()
+	# labels = readLabel()
 	# name, label, vad = test.readFile("Ses01F_impro01.txt")
 
-	test.labelVectorGen(1, 2)
-	# print vad[0]
-	# test.logDebug(name, "name")
-	# test.logDebug(label, "label")
-	# test.logDebug(vad, "vad")
+	# labels.labelVectorGen(1, 2)
+	# audio = wave()
+	output = open("audiotest.txt", 'w')
+	path = "Session1/sentences/wav/Ses01F_impro01"
+	# path = os.path.join(path, "sentences")
+	for item in os.listdir(path):
+		wavepath = os.path.join(path, item)
+		a, b = wavfile.read(wavepath)
+		output.write(str((float(len(b))/float(a))))
+		output.write(str(a))
+		output.write('\n')
+		output.write(str(len(b)))
+		output.write(str(b))
+		output.write('\n')
+	output.close()
 
 
+		# temp = wv.open(wavepath, 'r')
+		# print temp.getparams()
+		# print temp.readframes(1000)
 
-	# print len(label)
-	# print len(vad)
-
-
-		
-		# print fileNames
-
-		# print fileLabels
-
-		# print len(fileNames)
-		# print len(fileLabels)
-
-	
-
+	# 	break
+	# wavepath = os.path.join(path, item)
+	# a, b = wavfile.read(path)
+	# print a
+	# print b
 
 
