@@ -21,7 +21,72 @@ from sklearn.decomposition import RandomizedPCA
 # >>> cross_val_score(clf, iris.data, iris.target, cv=10)
 
 
-def read_in_data(trainpath, testpath):
+# def read_in_data(trainpath, testpath):
+#     datapath = "image_data"
+#     train_datapath = os.path.join(datapath, trainpath)
+#     trainfile = open(train_datapath, 'r')
+
+#     test_datapath = os.path.join(datapath, testpath)
+
+#     testfile = open(test_datapath, 'r')
+
+#     xtrain = []
+#     ytrain = []
+#     xtrainline = []
+
+#     print "processing training data..."
+  
+#     while(1):
+
+#         # if len(xtrainline) and len(xtrain):
+#         #     xtrain = np.vstack((xtrain, xtrainline))
+#         line = trainfile.readline()
+
+#         if not line:
+#             break
+
+#         line = line.strip().split(' ')
+#         ytrain.append(line[0])
+#         xtrainline = np.asarray(line[1:])
+#         xtrainline = xtrainline.astype(np.float)
+#         if not len(xtrain):
+#             xtrain = xtrainline
+#         else:
+#             xtrain = np.vstack((xtrain, xtrainline))
+#         # print xtrain
+#     ytrain = np.asarray(ytrain).astype(np.float)
+
+#     xtest = []
+#     ytest = []
+#     xtestline = []
+
+
+#     print "processing testing data..."
+#     while(1):
+#         # if len(xtestline) and len(xtest):
+#         #     xtest = np.vstack((xtest, xtestline))
+#         line = testfile.readline()
+
+#         if not line:
+#             break
+
+#         line = line.strip().split(' ')
+#         ytest.append(line[0])
+#         xtestline = np.asarray(line[1:])
+#         xtestline = xtestline.astype(np.float)
+#         if not len(xtest):
+#             xtest = xtestline
+#         else:
+#             xtest = np.vstack((xtest, xtestline))
+
+#     ytest = np.asarray(ytest).astype(np.float)
+
+#     trainfile.close()
+#     testfile.close()
+#     return xtrain, ytrain, xtest, ytest
+
+
+def read_in_data(trainpath, testpath):   # V2, modify as read in the data once and then process it
     datapath = "image_data"
     train_datapath = os.path.join(datapath, trainpath)
     trainfile = open(train_datapath, 'r')
@@ -34,10 +99,20 @@ def read_in_data(trainpath, testpath):
     ytrain = []
     xtrainline = []
 
-    print "processing training data..."
-  
-    while(1):
+    rawparse = []
 
+    while(1):
+        line = trainfile.readline()
+        if line:
+            line = np.asarray(line.strip().split(' '))
+            rawparse = line
+            break
+
+
+    print "processing training data..."
+    while(1):
+        # print count
+        # count += 1
         # if len(xtrainline) and len(xtrain):
         #     xtrain = np.vstack((xtrain, xtrainline))
         line = trainfile.readline()
@@ -45,46 +120,56 @@ def read_in_data(trainpath, testpath):
         if not line:
             break
 
-        line = line.strip().split(' ')
-        ytrain.append(line[0])
-        xtrainline = np.asarray(line[1:])
-        xtrainline = xtrainline.astype(np.float)
-        if not len(xtrain):
-            xtrain = xtrainline
-        else:
-            xtrain = np.vstack((xtrain, xtrainline))
+        line = np.asarray(line.strip().split(' '))
+        # .astype(np.float)
+        # if not len(rawparse):
+        #     rawparse = line
+        # else:
+        rawparse = np.vstack((rawparse, line))
+
+    print rawparse 
+    print len(rawparse)
+
+
+        # ytrain.append(line[0])
+        # xtrainline = np.asarray(line[1:])
+        # xtrainline = xtrainline.astype(np.float)
+        # if not len(xtrain):
+        #     xtrain = xtrainline
+        # else:
+        #     xtrain = np.vstack((xtrain, xtrainline))
         # print xtrain
-    ytrain = np.asarray(ytrain).astype(np.float)
+    # ytrain = np.asarray(ytrain).astype(np.float)
 
-    xtest = []
-    ytest = []
-    xtestline = []
+    # xtest = []
+    # ytest = []
+    # xtestline = []
 
 
-    print "processing testing data..."
-    while(1):
-        # if len(xtestline) and len(xtest):
-        #     xtest = np.vstack((xtest, xtestline))
-        line = testfile.readline()
+    # print "processing testing data..."
+    # while(1):
+    #     # if len(xtestline) and len(xtest):
+    #     #     xtest = np.vstack((xtest, xtestline))
+    #     line = testfile.readline()
 
-        if not line:
-            break
+    #     if not line:
+    #         break
 
-        line = line.strip().split(' ')
-        ytest.append(line[0])
-        xtestline = np.asarray(line[1:])
-        xtestline = xtestline.astype(np.float)
-        if not len(xtest):
-            xtest = xtestline
-        else:
-            xtest = np.vstack((xtest, xtestline))
+    #     line = line.strip().split(' ')
+    #     ytest.append(line[0])
+    #     xtestline = np.asarray(line[1:])
+    #     xtestline = xtestline.astype(np.float)
+    #     if not len(xtest):
+    #         xtest = xtestline
+    #     else:
+    #         xtest = np.vstack((xtest, xtestline))
 
-    ytest = np.asarray(ytest).astype(np.float)
+    # ytest = np.asarray(ytest).astype(np.float)
 
-    trainfile.close()
-    testfile.close()
-    return xtrain, ytrain, xtest, ytest
-
+    # trainfile.close()
+    # testfile.close()
+    # return xtrain, ytrain, xtest, ytest
+    return
 
 def decision_tree(train, test):
 
@@ -200,21 +285,22 @@ def pca_svm(train, test):
     return y
 
 if __name__ == '__main__':
-    model = sys.argv[1]
-    train = sys.argv[2]
-    test = sys.argv[3]
+    # model = sys.argv[1]
+    # train = sys.argv[2]
+    # test = sys.argv[3]
 
 
     # hard code for testing and debug
 
     # model = "pcasvm"
-    # train = "zip.train"
-    # test = "zip.test"
 
+    train = "zip.train"
+    test = "zip.test"
 
-    xtrain, ytrain, xtest, ytest = read_in_data(train, test)
-    train = (xtrain, ytrain)
-    test = (xtest, ytest)
+    read_in_data(train , test)
+    # xtrain, ytrain, xtest, ytest = read_in_data(train, test)
+    # train = (xtrain, ytrain)
+    # test = (xtest, ytest)
 
     #----------------------------
 
@@ -240,7 +326,7 @@ if __name__ == '__main__':
 
     # test and experiment
 
-    combo_result = []
+    # combo_result = []
     # combo_result.append("decision_tree")
     # combo_result.append(decision_tree(train, test))
     # combo_result.append("knn")
@@ -249,10 +335,10 @@ if __name__ == '__main__':
     # combo_result.append(neural_net(train, test))
     # combo_result.append("svm")
     # combo_result.append(svm(train, test))
-    combo_result.append("pca_knn")
-    combo_result.append(pca_knn(train, test))
-    combo_result.append("pca_svm")
-    combo_result.append(pca_svm(train, test))
+    # combo_result.append("pca_knn")
+    # combo_result.append(pca_knn(train, test))
+    # combo_result.append("pca_svm")
+    # combo_result.append(pca_svm(train, test))
 
     # outfile = open("result_combo.txt", 'w')
     # for item in combo_result:
@@ -260,7 +346,7 @@ if __name__ == '__main__':
     #     outfile.write('\n')
     # outfile.close()
 
-    print combo_result
+    # print combo_result
 
 
     #     print(decision_tree(train, test))
@@ -276,6 +362,8 @@ if __name__ == '__main__':
     #     print(pca_svm(train, test))
     # else:
     #     print("Invalid method selected!")
+
+
 
 
 
