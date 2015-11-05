@@ -1,144 +1,173 @@
-import numpy as np
+#!/usr/bin/python
+
+import sys
 import os
+import numpy as np
+from sklearn.naive_bayes import MultinomialNB
+
+###############################################################################
 
 
-class naiveBayesMulFeature:
-    "the class for ML Bayes classifier coding assignment"
-    
-    def __init__(self):
-
-        self.Vnum = 15
-        self.wordlist = ["love", "loving", "loves", "loved", "wonderful", "best", "great", "superb", "still", "beautiful", "bad", "worst", "stupid", "waste", "boring", "?", "!", "UNKNOWN"]
-        self.ThetaPos = 0
-        self.ThetaNeg = 0
+wordlist = ["love", "wonderful", "best", "great", "superb", "still", "beautiful", "bad", "worst", "stupid", "waste", "boring", "?", "!", "UNKNOWN"]
 
 
-    def transfer(self, fileDj, vocabulary):
-        inputfile = open(fileDj)
-        valueVector = np.zeros(len(vocabulary))
-        while(1):
-            tempstring = inputfile.readline()
-            if not tempstring:
-                break
-            value = np.array(tempstring.strip('\n').split(' '))
-            for i in range(len(value)):
-                if value[i] in vocabulary:
-                    indx = vocabulary.index(value[i])
+def transfer(fileDj, vocabulary):
+    stemmer = stem.snowball.EnglishStemmer()
+    inputfile = open(fileDj)
+    valueVector = np.zeros(len(vocabulary))
+    while(1):
+        tempstring = inputfile.readline()
+        if not tempstring:
+            break
+        value = np.array(tempstring.strip('\n').split(' '))
+        for i in range(len(value)):
+            stemedword = stemmer.stem(value[i])
+            if stemedword in vocabulary:
+                indx = vocabulary.index(stemedword)
 #                    print value[i]
-                    valueVector[indx] += 1
-                else:
-                    valueVector[-1] += 1 # the "UNKNOWN" charactor
-        inputfile.close()
-        return naiveBayesMulFeature.wordlistProcess(self, valueVector)
-
-    def wordlistProcess(self, wordcounts): # unifiy the count result of "love" words in the wordlist 
-        
-        wordcounts[0] = wordcounts[0] + wordcounts[1] + wordcounts[2] + wordcounts[3]
-        wordcounts = np.delete(wordcounts, 1)
-        wordcounts = np.delete(wordcounts, 1)
-        wordcounts = np.delete(wordcounts, 1)
-        return wordcounts
-
-
-    def buildFeatMatrix(self, folderpath):
-        first = True
-        Matrix = []
-        for filename in os.listdir(folderpath):
-            fullpath = os.path.join(folderpath, filename)
-            if first:
-                Matrix = naiveBayesMulFeature.transfer(self, fullpath, self.wordlist)
-                first = False
+                valueVector[indx] += 1
             else:
-                temp = naiveBayesMulFeature.transfer(self, fullpath, self.wordlist)
-                Matrix = np.vstack((Matrix, temp))
-        return Matrix
+                valueVector[-1] += 1 # the "UNKNOWN" charactor
+    inputfile.close()
+    return valueVector
+
+    # return BOWDj
 
 
-    def loadData(self, fullpath):
-        # outputfile = open("test.txt", "w")
-        if not os.path.isdir(fullpath):
-            print "invalid file path!"
-            return
-        traindir = os.path.join(fullpath, "training_set")
-        testdir = os.path.join(fullpath, "test_set")
-        trainPosDir = os.path.join(traindir, "pos")
-        trainNegDir = os.path.join(traindir, "neg")
-        testPosDir = os.path.join(testdir, "pos")
-        testNegDir = os.path.join(testdir, "neg")
-        # train
-        print "building training pos"
-        XtrainPos = naiveBayesMulFeature.buildFeatMatrix(self, trainPosDir)
-        print "building training neg"
-        XtrainNeg = naiveBayesMulFeature.buildFeatMatrix(self, trainNegDir)
-        Xtrain = np.vstack((XtrainPos, XtrainNeg))
-        ytrainPos = np.ones(len(XtrainPos))
-        ytrainNeg = np.zeros(len(XtrainNeg))
-        ytrain = np.hstack((ytrainPos, ytrainNeg))
 
-        #test
-        print "building test pos"
-        XtestPos = naiveBayesMulFeature.buildFeatMatrix(self, testPosDir)
-        print "building test neg"
-        XtestNeg = naiveBayesMulFeature.buildFeatMatrix(self, testNegDir)
-        Xtest = np.vstack((XtestPos, XtestNeg))
-        ytestPos = np.ones(len(XtestPos))
-        ytestNeg = np.zeros(len(XtestNeg))
-        ytest = np.hstack((ytestPos, ytestNeg))
-
-        return Xtrain, Xtest, ytrain, ytest
+def buildFeatMatrix(folderpath):
+    first = True
+    Matrix = []
+    for filename in os.listdir(folderpath):
+        fullpath = os.path.join(folderpath, filename)
+        if first:
+            Matrix = transfer(fullpath, wordlist)
+            first = False
+        else:
+            temp = transfer(fullpath, wordlist)
+            Matrix = np.vstack((Matrix, temp))
+    return Matrix
 
 
 
 
-    def train(self, Xtrain, ytrain):
-        Vlen = self.Vnum # the length of the vocabulary
-        PosVocabularyNum = 0 # the # of words in the whole Pos
-        NegVocabularyNum = 0 # the # of words in the whole Neg
-        PosCategoryFrequency = np.zeros(Vlen) # the frequency of each words inside Pos
-        NegCategoryFrequency = np.zeros(Vlen) # the frequency of each words inside Neg
-
-        for i in range(len(Xtrain)):
-            Wordcount = np.sum(Xtrain[i])
-            if ytrain[i]: # a positive instance
-                PosVocabularyNum += Wordcount
-                for j in range(Vlen):
-                    PosCategoryFrequency[j] += Xtrain[i,j]
-
-                # print Wordcount
-            else:
-                NegVocabularyNum += Wordcount
-                for j in range(Vlen):
-                    NegCategoryFrequency[j] += Xtrain[i,j]
-                # print Wordcount
-        for i in range(Vlen):
-            PosCategoryFrequency[i] = (PosCategoryFrequency[i] + 1) / (PosVocabularyNum + Vlen)
-            NegCategoryFrequency[i] = (NegCategoryFrequency[i] + 1) / (NegVocabularyNum + Vlen) 
-        self.ThetaPos = np.log(PosCategoryFrequency)
-        self.ThetaNeg = np.log(NegCategoryFrequency)
-        return PosCategoryFrequency, NegCategoryFrequency
 
 
-    def test(self, Xtest, ytest):
-        TestNum = len(Xtest)
-        yPredict = np.zeros(TestNum)
-        ThetaPos = self.ThetaPos
-        ThetaNeg = self.ThetaNeg
-        for i in range(TestNum):
-            pPos = 0
-            pNeg = 0
-            for j in range(self.Vnum): # the unknown words are not taken into consideration here
-                pPos += Xtest[i, j] * ThetaPos[j]
-                pNeg += Xtest[i, j] * ThetaNeg[j]
-            if pPos > pNeg:
-                yPredict[i] = 1
-        Accuracy = 1 - float(np.sum(np.logical_xor(yPredict, ytest)))/TestNum
-        return yPredict, Accuracy
+
+def loadData(Path):
+    if not os.path.isdir(path):
+        print "invalid file path!"
+        return
+    traindir = os.path.join(path, "training_set")
+    testdir = os.path.join(path, "test_set")
+    trainPosDir = os.path.join(traindir, "pos")
+    trainNegDir = os.path.join(traindir, "neg")
+    testPosDir = os.path.join(testdir, "pos")
+    testNegDir = os.path.join(testdir, "neg")
+    # train
+    print "building training pos"
+    XtrainPos = naiveBayesMulFeature.buildFeatMatrix(self, trainPosDir)
+    print "building training neg"
+    XtrainNeg = naiveBayesMulFeature.buildFeatMatrix(self, trainNegDir)
+    Xtrain = np.vstack((XtrainPos, XtrainNeg))
+    ytrainPos = np.ones(len(XtrainPos))
+    ytrainNeg = np.zeros(len(XtrainNeg))
+    ytrain = np.hstack((ytrainPos, ytrainNeg))
+
+    #test
+    print "building test pos"
+    XtestPos = naiveBayesMulFeature.buildFeatMatrix(self, testPosDir)
+    print "building test neg"
+    XtestNeg = naiveBayesMulFeature.buildFeatMatrix(self, testNegDir)
+    Xtest = np.vstack((XtestPos, XtestNeg))
+    ytestPos = np.ones(len(XtestPos))
+    ytestNeg = np.zeros(len(XtestNeg))
+    ytest = np.hstack((ytestPos, ytestNeg))
+    
+    return Xtrain, Xtest, ytrain, ytest
 
 
+def naiveBayesMulFeature_train(Xtrain, ytrain):
+
+    return thetaPos, thetaNeg
+
+
+def naiveBayesMulFeature_test(Xtest, ytest,thetaPos, thetaNeg):
+    yPredict = []
+
+    return yPredict, Accuracy
+
+
+def naiveBayesMulFeature_sk_MNBC(Xtrain, ytrain, Xtest, ytest):
+
+    return Accuracy
+
+
+
+def naiveBayesMulFeature_testDirectOne(path,thetaPos, thetaNeg):
+    
+    return yPredict
+
+
+def naiveBayesMulFeature_testDirect(path,thetaPos, thetaNeg):
+    yPredict = []
+
+    return yPredict, Accuracy
+
+
+
+def naiveBayesBernFeature_train(Xtrain, ytrain):
+
+    return thetaPosTrue, thetaNegTrue
+
+    
+def naiveBayesBernFeature_test(Xtest, ytest, thetaPosTrue, thetaNegTrue):
+    yPredict = []
+    
+    return yPredict, Accuracy
 
 
 if __name__ == "__main__":
-    nBF = naiveBayesMulFeature()
-    Xtrain, Xtest, ytrain, ytest = nBF.loadData("data_sets (actual)")
-    nBF.train(Xtrain,ytrain)
-    print nBF.test(Xtest, ytest)
+
+    # if len(sys.argv) != 3:
+    #     print "Usage: python naiveBayes.py dataSetPath testSetPath"
+    #     sys.exit()
+
+    # print "--------------------"
+    # textDataSetsDirectoryFullPath = sys.argv[1]
+    # testFileDirectoryFullPath = sys.argv[2]
+
+
+    # Xtrain, Xtest, ytrain, ytest = loadData(textDataSetsDirectoryFullPath)
+
+
+    # thetaPos, thetaNeg = naiveBayesMulFeature_train(Xtrain, ytrain)
+    # print "thetaPos =", thetaPos
+    # print "thetaNeg =", thetaNeg
+    # print "--------------------"
+
+    # yPredict, Accuracy = naiveBayesMulFeature_test(Xtest, ytest, thetaPos, thetaNeg)
+    # print "MNBC classification accuracy =", Accuracy
+
+    # Accuracy_sk = naiveBayesMulFeature_sk_MNBC(Xtrain, ytrain, Xtest, ytest)
+    # print "Sklearn MultinomialNB accuracy =", Accuracy_sk
+
+    # yPredict, Accuracy = naiveBayesMulFeature_testDirect(testFileDirectoryFullPath, thetaPos, thetaNeg)
+    # print "Directly MNBC tesing accuracy =", Accuracy
+    # print "--------------------"
+
+    # thetaPosTrue, thetaNegTrue = naiveBayesBernFeature_train(Xtrain, ytrain)
+    # print "thetaPosTrue =", thetaPosTrue
+    # print "thetaNegTrue =", thetaNegTrue
+    # print "--------------------"
+
+    # yPredict, Accuracy = naiveBayesBernFeature_test(Xtest, ytest, thetaPosTrue, thetaNegTrue)
+    # print "BNBC classification accuracy =", Accuracy
+    # print "--------------------"
+
+    path = "data_sets/training_set/pos/"
+
+    M = buildFeatMatrix(path)
+    print M
+    print type(M)
+    print len(M)
