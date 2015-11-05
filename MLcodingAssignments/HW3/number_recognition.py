@@ -97,79 +97,51 @@ def read_in_data(trainpath, testpath):   # V2, modify as read in the data once a
 
     xtrain = []
     ytrain = []
-    xtrainline = []
 
     rawparse = []
 
+
+    print "processing train data..."
+
     while(1):
         line = trainfile.readline()
-        if line:
-            line = np.asarray(line.strip().split(' '))
-            rawparse = line
-            break
-
-
-    print "processing training data..."
-    while(1):
-        # print count
-        # count += 1
-        # if len(xtrainline) and len(xtrain):
-        #     xtrain = np.vstack((xtrain, xtrainline))
-        line = trainfile.readline()
-
         if not line:
             break
 
-        line = np.asarray(line.strip().split(' '))
-        # .astype(np.float)
-        # if not len(rawparse):
-        #     rawparse = line
-        # else:
-        rawparse = np.vstack((rawparse, line))
+        line = line.strip().split(' ')
+        rawparse.append(line)
 
-    print rawparse 
-    print len(rawparse)
+    rawparse = np.asarray(rawparse).astype(np.float)
+    # print type(rawparse)
+    # print len(rawparse)
+    # print len(rawparse[0])
+    # print rawparse[0,0]
+    # print rawparse[1,0]
+
+    ytrain = rawparse[ : , 0]
+    xtrain = rawparse[: , 1:]
+
+    print "processing test data..."
+
+    rawparse = []
+    while(1):
+        line = testfile.readline()
+        if not line:
+            break
+
+        line = line.strip().split(' ')
+        rawparse.append(line)
+
+    rawparse = np.asarray(rawparse).astype(np.float)
+
+    ytest = rawparse[ : , 0]
+    xtest = rawparse[: , 1:]
 
 
-        # ytrain.append(line[0])
-        # xtrainline = np.asarray(line[1:])
-        # xtrainline = xtrainline.astype(np.float)
-        # if not len(xtrain):
-        #     xtrain = xtrainline
-        # else:
-        #     xtrain = np.vstack((xtrain, xtrainline))
-        # print xtrain
-    # ytrain = np.asarray(ytrain).astype(np.float)
-
-    # xtest = []
-    # ytest = []
-    # xtestline = []
-
-
-    # print "processing testing data..."
-    # while(1):
-    #     # if len(xtestline) and len(xtest):
-    #     #     xtest = np.vstack((xtest, xtestline))
-    #     line = testfile.readline()
-
-    #     if not line:
-    #         break
-
-    #     line = line.strip().split(' ')
-    #     ytest.append(line[0])
-    #     xtestline = np.asarray(line[1:])
-    #     xtestline = xtestline.astype(np.float)
-    #     if not len(xtest):
-    #         xtest = xtestline
-    #     else:
-    #         xtest = np.vstack((xtest, xtestline))
-
-    # ytest = np.asarray(ytest).astype(np.float)
-
-    # trainfile.close()
-    # testfile.close()
-    # return xtrain, ytrain, xtest, ytest
-    return
+    trainfile.close()
+    testfile.close()
+    return xtrain, ytrain, xtest, ytest
+    # return
 
 def decision_tree(train, test):
 
@@ -297,8 +269,12 @@ if __name__ == '__main__':
     train = "zip.train"
     test = "zip.test"
 
-    read_in_data(train , test)
-    # xtrain, ytrain, xtest, ytest = read_in_data(train, test)
+    # read_in_data(train , test)
+    xtrain, ytrain, xtest, ytest = read_in_data(train, test)
+    print xtrain.shape
+    print ytrain.shape
+    print xtest.shape
+    print ytest.shape
     # train = (xtrain, ytrain)
     # test = (xtest, ytest)
 
