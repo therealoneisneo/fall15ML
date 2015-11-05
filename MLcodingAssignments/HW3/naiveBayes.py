@@ -3,12 +3,15 @@
 import sys
 import os
 import numpy as np
+from nltk import stem
 from sklearn.naive_bayes import MultinomialNB
 
 ###############################################################################
 
 
 wordlist = ["love", "wonderful", "best", "great", "superb", "still", "beautiful", "bad", "worst", "stupid", "waste", "boring", "?", "!", "UNKNOWN"]
+
+Vlen = len(wordlist)
 
 
 def transfer(fileDj, vocabulary):
@@ -40,18 +43,15 @@ def buildFeatMatrix(folderpath):
     Matrix = []
     for filename in os.listdir(folderpath):
         fullpath = os.path.join(folderpath, filename)
-        if first:
-            Matrix = transfer(fullpath, wordlist)
-            first = False
-        else:
-            temp = transfer(fullpath, wordlist)
-            Matrix = np.vstack((Matrix, temp))
-    return Matrix
+        Matrix.append(transfer(fullpath, wordlist))
 
-
-
-
-
+        # if first:
+        #     Matrix = transfer(fullpath, wordlist)
+        #     first = False
+        # else:
+        #     temp = transfer(fullpath, wordlist)
+        #     Matrix = np.vstack((Matrix, temp))
+    return np.asarray(Matrix)
 
 
 def loadData(Path):
@@ -66,9 +66,9 @@ def loadData(Path):
     testNegDir = os.path.join(testdir, "neg")
     # train
     print "building training pos"
-    XtrainPos = naiveBayesMulFeature.buildFeatMatrix(self, trainPosDir)
+    XtrainPos = buildFeatMatrix(trainPosDir)
     print "building training neg"
-    XtrainNeg = naiveBayesMulFeature.buildFeatMatrix(self, trainNegDir)
+    XtrainNeg = buildFeatMatrix(trainNegDir)
     Xtrain = np.vstack((XtrainPos, XtrainNeg))
     ytrainPos = np.ones(len(XtrainPos))
     ytrainNeg = np.zeros(len(XtrainNeg))
@@ -76,9 +76,9 @@ def loadData(Path):
 
     #test
     print "building test pos"
-    XtestPos = naiveBayesMulFeature.buildFeatMatrix(self, testPosDir)
+    XtestPos = buildFeatMatrix(testPosDir)
     print "building test neg"
-    XtestNeg = naiveBayesMulFeature.buildFeatMatrix(self, testNegDir)
+    XtestNeg = buildFeatMatrix(testNegDir)
     Xtest = np.vstack((XtestPos, XtestNeg))
     ytestPos = np.ones(len(XtestPos))
     ytestNeg = np.zeros(len(XtestNeg))
@@ -88,6 +88,38 @@ def loadData(Path):
 
 
 def naiveBayesMulFeature_train(Xtrain, ytrain):
+    PosVocabularyNum = 0 # the # of words in the whole Pos
+    NegVocabularyNum = 0 # the # of words in the whole Neg
+    PosCategoryFrequency = np.zeros(Vlen) # the frequency of each words inside Pos
+    NegCategoryFrequency = np.zeros(Vlen) # the frequency of each words inside Neg
+
+    for i in range(len(Xtrain)):
+        Wordcount = np.sum(Xtrain[i])
+        if ytrain[i]: # a positive instance
+            PosVocabularyNum += Wordcount
+            for j in range(Vlen):
+                PosCategoryFrequency[j] += Xtrain[i,j]
+
+            # print Wordcount
+        else:
+            NegVocabularyNum += Wordcount
+            for j in range(Vlen):
+                NegCategoryFrequency[j] += Xtrain[i,j]
+            # print Wordcount
+    for i in range(Vlen):
+        PosCategoryFrequency[i] = (PosCategoryFrequency[i] + 1) / (PosVocabularyNum + Vlen)
+        NegCategoryFrequency[i] = (NegCategoryFrequency[i] + 1) / (NegVocabularyNum + Vlen) 
+
+    thetaPos = PosCategoryFrequency
+    thetaNeg = NegCategoryFrequency
+
+    # self.ThetaPos = np.log(PosCategoryFrequency)
+    # self.ThetaNeg = np.log(NegCategoryFrequency)
+    # return PosCategoryFrequency, NegCategoryFrequency
+
+
+
+
 
     return thetaPos, thetaNeg
 
@@ -165,9 +197,14 @@ if __name__ == "__main__":
     # print "BNBC classification accuracy =", Accuracy
     # print "--------------------"
 
-    path = "data_sets/training_set/pos/"
 
-    M = buildFeatMatrix(path)
-    print M
-    print type(M)
-    print len(M)
+
+#--------------------------------------------------------------------------------------------
+
+
+    path = "data_sets"#/training_set/pos/"
+
+    Xtrain, Xtest, ytrain, ytest = loadData(path)
+    thetaPos, thetaNeg = naiveBayesMulFeature_train(Xtrain, ytrain)
+    print "thetaPos =", thetaPos
+    print "thetaNeg =", thetaNeg
