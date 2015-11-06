@@ -171,9 +171,15 @@ class naiveBayesMulFeature:
 if __name__ == "__main__":
     nBF = naiveBayesMulFeature()
     Xtrain, Xtest, ytrain, ytest = nBF.loadData("data_sets")
-    # print Xtrain
+    print Xtrain[:, -1]
+    print Xtest[:, -1]
+    print ytrain
+    print ytest
+    print len(Xtrain)
+    print len(ytrain)
+   
     # Xtrain = nBF.experiment(Xtrain)
     # print Xtrain
-    nBF.train(Xtrain,ytrain)
-    print nBF.test(Xtest, ytest)
-    print nBF.sklearnComp(Xtrain, ytrain, Xtest, ytest) 
+    print nBF.train(Xtrain,ytrain)
+    # print nBF.test(Xtest, ytest)
+    # print nBF.sklearnComp(Xtrain, ytrain, Xtest, ytest) 
