@@ -210,15 +210,24 @@ def naiveBayesMulFeature_testDirect(path,thetaPos, thetaNeg):
 
     return yPredict, Accuracy
 
+def Mul_to_Bern_train_tranfer(Xtrain):
+    for i in range(len(Xtrain)):
+        for j in range(len(Xtrain[0])):
+            if Xtrain[i, j] > 0:
+                Xtrain[i, j] = 1
 
+
+    return Xtrain
 
 def naiveBayesBernFeature_train(Xtrain, ytrain):
+
     PosNum = sum(ytrain) # the # of pos instances
     NegNum = len(ytrain) - PosNum # the # of neg instances
 
     posTextcount = np.zeros(Vlen) # the number of textfiles in pos category that contain a word in vocabulary
     negTextcount = np.zeros(Vlen) # the number of textfiles in neg category that contain a word in vocabulary
 
+    Xtrain = Mul_to_Bern_train_tranfer(Xtrain)
 
     for i in range(len(Xtrain)):
         # Wordcount = np.sum(Xtrain[i])
@@ -313,9 +322,12 @@ if __name__ == "__main__":
 
     thetaPos, thetaNeg = naiveBayesMulFeature_train(Xtrain, ytrain)
 
-    testpath = "data_sets/test_set"
-    yPredict, Accuracy = naiveBayesMulFeature_testDirect(testpath, thetaPos, thetaNeg)
-    print "Directly MNBC tesing accuracy =", Accuracy
+    print thetaPos
+    print thetaNeg
+
+    # testpath = "data_sets/test_set"
+    # yPredict, Accuracy = naiveBayesMulFeature _testDirect(testpath, thetaPos, thetaNeg)
+    # print "Directly MNBC tesing accuracy =", Accuracy
 
     thetaPosTrue, thetaNegTrue = naiveBayesBernFeature_train(Xtrain, ytrain)
     print "thetaPosTrue =", thetaPosTrue
@@ -325,4 +337,5 @@ if __name__ == "__main__":
     yPredict, Accuracy = naiveBayesBernFeature_test(Xtest, ytest, thetaPosTrue, thetaNegTrue)
     print "BNBC classification accuracy =", Accuracy
     print "--------------------"
+    print yPredict
 

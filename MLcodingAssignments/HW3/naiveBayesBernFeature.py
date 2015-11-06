@@ -107,6 +107,8 @@ class naiveBayesBernFeature:
 
 
     def train(self, Xtrain, ytrain):
+        print Xtrain
+        print ytrain
 
         PosNum = sum(ytrain) # the # of pos instances
         NegNum = len(ytrain) - PosNum # the # of neg instances
@@ -156,6 +158,10 @@ class naiveBayesBernFeature:
         yPredict = np.zeros(TestNum)
         ThetaPos = self.ThetaPos
         ThetaNeg = self.ThetaNeg
+        ThetaPos = np.log(ThetaPos)
+        ThetaNeg = np.log(ThetaNeg)
+
+
         for i in range(TestNum):
             # pPos = 0
             # pNeg = 0
@@ -179,5 +185,10 @@ if __name__ == "__main__":
     # print ytrain
     # print Xtest
     # print ytest
-    print nBF.train(Xtrain,ytrain)
+    x, y = nBF.train(Xtrain,ytrain)
+    # print x
+    # print y
+
+    # print np.log(x)
+    # print np.log(y)
     print nBF.test(Xtest, ytest)
