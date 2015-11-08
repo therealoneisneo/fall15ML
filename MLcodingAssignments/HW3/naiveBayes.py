@@ -52,11 +52,11 @@ def buildFeatMatrix(folderpath):
 
 
 def loadData(Path):
-    if not os.path.isdir(path):
+    if not os.path.isdir(Path):
         print "invalid file path!"
         return
-    traindir = os.path.join(path, "training_set")
-    testdir = os.path.join(path, "test_set")
+    traindir = os.path.join(Path, "training_set")
+    testdir = os.path.join(Path, "test_set")
     trainPosDir = os.path.join(traindir, "pos")
     trainNegDir = os.path.join(traindir, "neg")
     testPosDir = os.path.join(testdir, "pos")
@@ -228,6 +228,7 @@ def naiveBayesBernFeature_train(Xtrain, ytrain):
     negTextcount = np.zeros(Vlen) # the number of textfiles in neg category that contain a word in vocabulary
 
     Xtrain = Mul_to_Bern_train_tranfer(Xtrain)
+    # print Xtrain
 
     for i in range(len(Xtrain)):
         # Wordcount = np.sum(Xtrain[i])
@@ -265,46 +266,9 @@ def naiveBayesBernFeature_test(Xtest, ytest, thetaPosTrue, thetaNegTrue):
 
 if __name__ == "__main__":
 
-    # if len(sys.argv) != 3:
-    #     print "Usage: python naiveBayes.py dataSetPath testSetPath"
-    #     sys.exit()
-
-    # print "--------------------"
-    # textDataSetsDirectoryFullPath = sys.argv[1]
-    # testFileDirectoryFullPath = sys.argv[2]
-
-
-    # Xtrain, Xtest, ytrain, ytest = loadData(textDataSetsDirectoryFullPath)
-
-
-    # thetaPos, thetaNeg = naiveBayesMulFeature_train(Xtrain, ytrain)
-    # print "thetaPos =", thetaPos
-    # print "thetaNeg =", thetaNeg
-    # print "--------------------"
-
-    # yPredict, Accuracy = naiveBayesMulFeature_test(Xtest, ytest, thetaPos, thetaNeg)
-    # print "MNBC classification accuracy =", Accuracy
-
-    # Accuracy_sk = naiveBayesMulFeature_sk_MNBC(Xtrain, ytrain, Xtest, ytest)
-    # print "Sklearn MultinomialNB accuracy =", Accuracy_sk
-
-    # yPredict, Accuracy = naiveBayesMulFeature_testDirect(testFileDirectoryFullPath, thetaPos, thetaNeg)
-    # print "Directly MNBC tesing accuracy =", Accuracy
-    # print "--------------------"
-
-    # thetaPosTrue, thetaNegTrue = naiveBayesBernFeature_train(Xtrain, ytrain)
-    # print "thetaPosTrue =", thetaPosTrue
-    # print "thetaNegTrue =", thetaNegTrue
-    # print "--------------------"
-
-    # yPredict, Accuracy = naiveBayesBernFeature_test(Xtest, ytest, thetaPosTrue, thetaNegTrue)
-    # print "BNBC classification accuracy =", Accuracy
-    # print "--------------------"
-
-
-
-#--------------------------------------------------------------------------------------------
-    
+    if len(sys.argv) != 3:
+        print "Usage: python naiveBayes.py dataSetPath testSetPath"
+        sys.exit()
 
 
     Owordlist = ["love", "wonderful", "best", "great", "superb", "still", "beautiful", "bad", "worst", "stupid", "waste", "boring", "?", "!", "UNKNOWN"]
@@ -316,18 +280,28 @@ if __name__ == "__main__":
         wordlist.append(stemmer.stem(word))
     Vlen = len(wordlist)
 
-    path = "data_sets"#/training_set/pos/"
+    print "--------------------"
+    textDataSetsDirectoryFullPath = sys.argv[1]
+    testFileDirectoryFullPath = sys.argv[2]
 
-    Xtrain, Xtest, ytrain, ytest = loadData(path)
+
+    Xtrain, Xtest, ytrain, ytest = loadData(textDataSetsDirectoryFullPath)
+
 
     thetaPos, thetaNeg = naiveBayesMulFeature_train(Xtrain, ytrain)
+    print "thetaPos =", thetaPos
+    print "thetaNeg =", thetaNeg
+    print "--------------------"
 
-    print thetaPos
-    print thetaNeg
+    yPredict, Accuracy = naiveBayesMulFeature_test(Xtest, ytest, thetaPos, thetaNeg)
+    print "MNBC classification accuracy =", Accuracy
 
-    # testpath = "data_sets/test_set"
-    # yPredict, Accuracy = naiveBayesMulFeature _testDirect(testpath, thetaPos, thetaNeg)
-    # print "Directly MNBC tesing accuracy =", Accuracy
+    Accuracy_sk = naiveBayesMulFeature_sk_MNBC(Xtrain, ytrain, Xtest, ytest)
+    print "Sklearn MultinomialNB accuracy =", Accuracy_sk
+
+    yPredict, Accuracy = naiveBayesMulFeature_testDirect(testFileDirectoryFullPath, thetaPos, thetaNeg)
+    print "Directly MNBC tesing accuracy =", Accuracy
+    print "--------------------"
 
     thetaPosTrue, thetaNegTrue = naiveBayesBernFeature_train(Xtrain, ytrain)
     print "thetaPosTrue =", thetaPosTrue
@@ -337,5 +311,42 @@ if __name__ == "__main__":
     yPredict, Accuracy = naiveBayesBernFeature_test(Xtest, ytest, thetaPosTrue, thetaNegTrue)
     print "BNBC classification accuracy =", Accuracy
     print "--------------------"
-    print yPredict
+
+
+
+#--------------------------------------------------------------------------------------------
+    
+
+
+    # Owordlist = ["love", "wonderful", "best", "great", "superb", "still", "beautiful", "bad", "worst", "stupid", "waste", "boring", "?", "!", "UNKNOWN"]
+    # wordlist = []
+
+    # stemmer = stem.snowball.EnglishStemmer()
+
+    # for word in Owordlist:
+    #     wordlist.append(stemmer.stem(word))
+    # Vlen = len(wordlist)
+
+    # path = "data_sets"#/training_set/pos/"
+
+    # Xtrain, Xtest, ytrain, ytest = loadData(path)
+
+    # thetaPos, thetaNeg = naiveBayesMulFeature_train(Xtrain, ytrain)
+
+    # # print thetaPos
+    # # print thetaNeg
+
+    # # testpath = "data_sets/test_set"
+    # # yPredict, Accuracy = naiveBayesMulFeature _testDirect(testpath, thetaPos, thetaNeg)
+    # # print "Directly MNBC tesing accuracy =", Accuracy
+
+    # thetaPosTrue, thetaNegTrue = naiveBayesBernFeature_train(Xtrain, ytrain)
+    # print "thetaPosTrue =", thetaPosTrue
+    # print "thetaNegTrue =", thetaNegTrue
+    # print "--------------------"
+
+    # yPredict, Accuracy = naiveBayesBernFeature_test(Xtest, ytest, thetaPosTrue, thetaNegTrue)
+    # print "BNBC classification accuracy =", Accuracy
+    # print "--------------------"
+    # print yPredict
 
