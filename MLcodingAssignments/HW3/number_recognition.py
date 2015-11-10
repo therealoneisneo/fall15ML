@@ -168,18 +168,27 @@ def decision_tree(train, test):
 def knn(train, test):
     y = []
     # xtrain, ytrain, xtest, ytest = read_in_data(train, test)
-    
+    terror = []
+
+
 
     xtrain = train[0]
     ytrain = train[1]
     xtest = test[0]
     ytest = test[1]
 
-    for neighbors in range(1, 11):
+    for neighbors in (1,10,50,100,200):
+        print neighbors
+    # (range(1, 11), 50, 100, 200):
         for weight in ('uniform', 'distance'):
             knnClassifier = KNeighborsClassifier(n_neighbors = neighbors, weights = weight)
             knnClassifier.fit(xtrain,ytrain)
             y.append(knnClassifier.score(xtest, ytest))
+            print "test error done"
+            terror.append(knnClassifier.score(xtrain, ytrain))
+            print "train error done"
+    print y
+    print terror
 
     #Your code here
     return y
@@ -271,12 +280,9 @@ if __name__ == '__main__':
 
     # read_in_data(train , test)
     xtrain, ytrain, xtest, ytest = read_in_data(train, test)
-    print xtrain.shape
-    print ytrain.shape
-    print xtest.shape
-    print ytest.shape
-    # train = (xtrain, ytrain)
-    # test = (xtest, ytest)
+
+    train = (xtrain, ytrain)
+    test = (xtest, ytest)
 
     #----------------------------
 
@@ -302,11 +308,11 @@ if __name__ == '__main__':
 
     # test and experiment
 
-    # combo_result = []
+    combo_result = []
     # combo_result.append("decision_tree")
     # combo_result.append(decision_tree(train, test))
-    # combo_result.append("knn")
-    # combo_result.append(knn(train, test))
+    combo_result.append("knn")
+    combo_result.append(knn(train, test))
     # combo_result.append("neural_net")
     # combo_result.append(neural_net(train, test))
     # combo_result.append("svm")
@@ -323,21 +329,6 @@ if __name__ == '__main__':
     # outfile.close()
 
     # print combo_result
-
-
-    #     print(decision_tree(train, test))
-    # elif model == "knn":
-    #     print(knn(train, test))
-    # elif model == "net":
-    #     print(neural_net(train, test))
-    # elif model == "svm":
-    #     print(svm(train, test))
-    # elif model == "pcaknn":
-    #     print(pca_knn(train, test))
-    # elif model == "pcasvm":
-    #     print(pca_svm(train, test))
-    # else:
-    #     print("Invalid method selected!")
 
 
 
