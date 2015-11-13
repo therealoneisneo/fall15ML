@@ -1,36 +1,45 @@
 import numpy as np
 import DataProcess as dp
 
-tempstring = "A-E4:	val 2; act 3; dom  3;	(guarded, tense, ready)"
-# # 
-tempstring = tempstring.strip()
-tempstring = tempstring.split('\t')
+# def funk(p1, p2):
+# 	x = p1 * p2[0]
+# 	p1 = -1
+# 	p2.append(x)
+# 	return x
 
-print tempstring
-a = tempstring[1]
-a = a.split(' ')
-print a 
+# x = 20
+# a = 2
+# b = [3,4]
+# result = funk(a,b)
+# print 'result=', result
+# print 'x = ', x
+# print 'a = ', a
+# print 'b = ', b
 
-for i in (1,3,5):
-	print i
+# def check(x):
 
-# for i in a:
-# 	i = i.strip(';')
-# 	print i
-# print tempstring[2][1]
+# 	set1 = set()
+# 	# set1 = set1.add(37)
+# 	set.insert(37)
+# 	print set1
 
-# parse = tempstring[3].strip('[')
-# parse = parse.strip(']')
-# parse = parse.split(', ')
-# print tempstring[0][0:3]
-# if tempstring[0][2] == 'E':
-# 	print tempstring[0][3]
+# 	# if x in set1:
+# 	# 	print x in set1
+# 	# else:
+# 	# 	print "No"
+# 	return
 
-# cat = tempstring[1].strip(';')
-# print cat
-# print type(cat)
-# print type(tempstring[3])
-# print parse
-# print type(parse[0])
+# check(37)
 
 
+# mylist = {3,2,4,5,1,6,7,8}
+# for eliment in mylist.sort():
+# 	mylist.pop(eliment)
+# 	mylist.insert(0, eliment)
+
+# print mylist
+
+
+dic = {'1':7, '2':8, '3':9}
+for i in dic:
+	print dic[i]

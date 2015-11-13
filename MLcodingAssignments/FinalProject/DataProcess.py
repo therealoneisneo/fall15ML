@@ -7,8 +7,15 @@ import numpy as np
 import wave as wv
 import os
 
+from features import mfcc
+from features import logfbank
+import scipy.io.wavfile as wav
+
 from pylab import*
-from scipy.io import wavfile
+
+
+
+
 
 class readAudio: # the class to read an audio file
 
@@ -278,6 +285,18 @@ class readLabel: # the class to read a label file
 		vadfile.close()			
 		return
 
+
+	def featureVecGen(audioPath):
+		for item in os.listdir(audioPath):
+			wavepath = os.path.join(path, item)
+			rate, sig = wav.read(wavepath)
+			
+			mfcc_feat = mfcc(sig,rate)
+			fbank_feat = logfbank(sig,rate) 
+
+		return
+
+
 	def fdebug(self, variable, varnamestr):
 		# readLabel.debug(self, variable, varnamestr)
 		debuglog = open("debuglog.txt", 'a')
@@ -308,18 +327,37 @@ if __name__ == "__main__":
 
 	# labels.labelVectorGen(1, 2)
 	# audio = wave()
-	output = open("audiotest.txt", 'w')
+	# output = open("audiotest.txt", 'w')
 	path = "Session1/sentences/wav/Ses01F_impro01"
 	# path = os.path.join(path, "sentences")
 	for item in os.listdir(path):
 		wavepath = os.path.join(path, item)
-		a, b = wavfile.read(wavepath)
-		output.write(str((float(len(b))/float(a))))
-		output.write(str(a))
-		output.write('\n')
-		output.write(str(len(b)))
-		output.write(str(b))
-		output.write('\n')
+		rate, sig = wav.read(wavepath)
+		# output.write(str((float(len(b))/float(a))))
+		# output.write(str(a))
+		# output.write('\n')
+		# output.write(str(len(b)))
+		# output.write(str(b))
+		# output.write('\n')
+		mfcc_feat = mfcc(sig,rate)
+		fbank_feat = logfbank(sig,rate) 
+		# print mfcc_feat
+
+
+		# for item in fbank_feat:
+		# # for item in 
+		# 	print item
+		# 	break
+		print fbank_feat[0]
+		print mfcc_feat[0]
+		# for item in mfcc_feat:
+		# 	print item
+			# output.write(item)
+		# output.write(fbank_feat)
+		# print len(fbank_feat)
+		break
+		# print len(mfcc_feat)
+
 	output.close()
 
 
