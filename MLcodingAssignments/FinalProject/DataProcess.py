@@ -30,6 +30,23 @@ class readAudio: # the class to read an audio file
 
 		return
 
+	def featureVecGen(self, audioPath):
+		mfcc_feat_vec = []
+		fbank_feat_vec = []
+		for item in os.listdir(audioPath):
+			wavepath = os.path.join(audioPath, item)
+			rate, sig = wav.read(wavepath)
+			
+			mfcc_feat = mfcc(sig,rate)
+			fbank_feat = logfbank(sig,rate) 
+			print mfcc_feat
+			print fbank_feat
+			break
+			# print len(mfcc_feat)
+			# print len(fbank_feat)
+
+		return
+
 
 
 class readLabel: # the class to read a label file
@@ -286,16 +303,6 @@ class readLabel: # the class to read a label file
 		return
 
 
-	def featureVecGen(audioPath):
-		for item in os.listdir(audioPath):
-			wavepath = os.path.join(path, item)
-			rate, sig = wav.read(wavepath)
-			
-			mfcc_feat = mfcc(sig,rate)
-			fbank_feat = logfbank(sig,rate) 
-
-		return
-
 
 	def fdebug(self, variable, varnamestr):
 		# readLabel.debug(self, variable, varnamestr)
@@ -329,36 +336,39 @@ if __name__ == "__main__":
 	# audio = wave()
 	# output = open("audiotest.txt", 'w')
 	path = "Session1/sentences/wav/Ses01F_impro01"
+
+	audios = readAudio()
+	audios.featureVecGen(path)
+	
 	# path = os.path.join(path, "sentences")
-	for item in os.listdir(path):
-		wavepath = os.path.join(path, item)
-		rate, sig = wav.read(wavepath)
-		# output.write(str((float(len(b))/float(a))))
-		# output.write(str(a))
-		# output.write('\n')
-		# output.write(str(len(b)))
-		# output.write(str(b))
-		# output.write('\n')
-		mfcc_feat = mfcc(sig,rate)
-		fbank_feat = logfbank(sig,rate) 
-		# print mfcc_feat
+
+	# for item in os.listdir(path):
+	# 	wavepath = os.path.join(path, item)
+	# 	rate, sig = wav.read(wavepath)
+	# 	# output.write(str((float(len(b))/float(a))))
+	# 	# output.write(str(a))
+	# 	# output.write('\n')
+	# 	# output.write(str(len(b)))
+	# 	# output.write(str(b))
+	# 	# output.write('\n')
+	# 	mfcc_feat = mfcc(sig,rate)
+	# 	fbank_feat = logfbank(sig,rate) 
+	# 	# print mfcc_feat
 
 
-		# for item in fbank_feat:
-		# # for item in 
-		# 	print item
-		# 	break
-		print fbank_feat[0]
-		print mfcc_feat[0]
-		# for item in mfcc_feat:
-		# 	print item
-			# output.write(item)
-		# output.write(fbank_feat)
-		# print len(fbank_feat)
-		break
-		# print len(mfcc_feat)
-
-	output.close()
+	# 	# for item in fbank_feat:
+	# 	# # for item in 
+	# 	# 	print item
+	# 	# 	break
+	# 	print fbank_feat[0]
+	# 	print mfcc_feat[0]
+	# 	# for item in mfcc_feat:
+	# 	# 	print item
+	# 		# output.write(item)
+	# 	# output.write(fbank_feat)
+	# 	# print len(fbank_feat)
+	# 	break
+	# 	# print len(mfcc_feat)
 
 
 		# temp = wv.open(wavepath, 'r')
