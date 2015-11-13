@@ -33,18 +33,24 @@ class readAudio: # the class to read an audio file
 	def featureVecGen(self, audioPath):
 		mfcc_feat_vec = []
 		fbank_feat_vec = []
+		Vec = []
 		for item in os.listdir(audioPath):
 			wavepath = os.path.join(audioPath, item)
 			rate, sig = wav.read(wavepath)
 			
-			mfcc_feat = mfcc(sig,rate)
-			fbank_feat = logfbank(sig,rate) 
-			print mfcc_feat
-			print fbank_feat
-			break
-			# print len(mfcc_feat)
-			# print len(fbank_feat)
+			# mfcc_feat = mfcc(sig,rate)
+			# fbank_feat = logfbank(sig,rate) 
+			# need a function here to process the multiple windows of mfcc and fbank in a single wave piece, here take the first window to process
+			# mfccVec = mfcc_feat[0][1:13]
+			# fbankVec = fbank_feat[0][1:13]
+			# temp = np.hstack((mfccVec, fbankVec))
+			# Vec.append(temp)
 
+			temp = np.fft.fft(sig)
+			print temp
+			print len(temp)
+			print np.linalg.norm(temp)
+			# break
 		return
 
 
