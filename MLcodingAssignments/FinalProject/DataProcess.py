@@ -14,6 +14,53 @@ import scipy.io.wavfile as wav
 from pylab import*
 
 
+def debug(variable, varnamestr):
+	print "Varname: " +  varnamestr  
+	print "Type: " + str(type(variable))
+	if type(variable) == 'numpy.ndarray':
+		print "Length: " + str(variable.shape)
+	else:
+		print "Length: " + str(len(variable))
+	print "Content: "
+	if type(variable) == 'dict':
+		for i in variable:
+			print i
+			print variable[i]
+	else:
+		print variable
+	print " "
+	return
+
+
+
+def fdebug(variable, varnamestr):
+	# readLabel.debug(self, variable, varnamestr)
+	filename = varnamestr + ".dtxt"
+	debuglog = open(filename, 'a')
+	debuglog.write( "Varname: " +  varnamestr  + '\n')
+	debuglog.write( "Type: " + str(type(variable)) + '\n')
+	if type(variable) == 'numpy.ndarray':
+		debuglog.write( "Length: " + str(variable.shape) + '\n')
+	else:
+		debuglog.write( "Length: " + str(len(variable)) + '\n')
+	debuglog.write( "Content: " + '\n')
+
+	if type(variable) == dict:
+		for i in variable:
+			print i
+			print variable[i]
+			debuglog.write(str(i) + ': \n')
+			debuglog.write(str(variable[i]) + '\n')
+		debuglog.write( " " + '\n')
+	else:
+		for i in variable:
+			print i
+			debuglog.write(str(i) + '\n')
+		debuglog.write( " " + '\n')
+	debuglog.close()
+
+	return
+
 
 class instances: # the class of a analyzed sentence
 
@@ -59,64 +106,87 @@ class readAudio: # the class to read an audio file
 
 		return
 
-	def featureVecGen(self, audioPath):
+	def featureDicGen(self, audioPath):
 		# mfcc_feat_vec = []
 		# fbank_feat_vec = []
-		featureVec = []
+		featureDic = {}
+
+
+
 		for item in os.listdir(audioPath):
-			tempVec = []
+			tempVec = [] # the feature vector of current clip being processed
 
 			wavepath = os.path.join(audioPath, item)
+
 			rate, sig = wav.read(wavepath)
 			
 			mfcc_feat = mfcc(sig,rate)
-			fbank_feat, enre = fbank(sig,rate) 
-			print fbank_feat
-			print len(fbank_feat)
-			print fbank_feat[0]
-			print enre
-			print len(enre)
-			# print mfcc_feat
-			# print len(mfcc_feat)
-			# print len(mfcc_feat[0])
+
+			delta_mfcc = readAudio.deltacal(self, mfcc_feat)
+			deltadelta_mfcc = readAudio.deltadelta(self, delta_mfcc)
+			# debug(deltadelta_mfcc, "deltadelta_mfcc")
 
 
-			# meanMfcc = (np.sum(mfcc_feat, axis = 0)/len(mfcc_feat))[1:13] # the mean of the mfcc feature of all slide windows
-			# meanFbank = (np.sum(fbank_feat, axis = 0)/len(mfcc_feat))[1:13]
-			# tempVec = np.hstack((meanMfcc, meanFbank))
-			# featureVec.append(tempVec)
+			mfcc_feat = np.mean(mfcc_feat[:, 1:13], axis = 0)
+			delta_mfcc = np.mean(delta_mfcc, axis = 0)
+			deltadelta_mfcc = np.mean(deltadelta_mfcc, axis = 0)
+
+			# take means of all windows in each dim for mfcc, delta_mfcc and deltadelta_mfcc
 
 
-			# print audiofeatureVec
-			# print len(audiofeatureVec)
+			fbank_feat, energy = fbank(sig,rate)
+			# debug(energy, "energy")
 
-			# need a function here to process the multiple windows of mfcc and fbank in a single wave piece, here take the first window to process
-			# mfccVec = mfcc_feat[0][1:13]
-			# fbankVec = fbank_feat[0][1:13]
-			# temp = np.hstack((mfccVec, fbankVec))
-			# Vec.append(temp)
+			fbank_feat = np.mean(fbank_feat[:, 1:13], axis = 0)
 
-			# temp = np.fft.fft(sig)
-		# print featureVec
-		# print len(featureVec)
-			# print np.linalg.norm(temp)
-			break
+			# debug(energy, "energy")
+			
+			energy_vec = []
+			energyarray = np.asarray(energy)
+			energy_vec.append(np.mean(energyarray, axis = 0))
+			energy_vec.append(np.median(energyarray, axis = 0))
+			energy_vec.append(np.std(energyarray, axis = 0))
+			energy_vec.append(np.amax(energyarray, axis = 0))
+			energy_vec.append(np.amin(energyarray, axis = 0))
+			energy_vec = np.asarray(energy_vec)
 
-		return
+			# debug(energy_vec, "test")
+
+			# take the mean, dedian, standard diviation, max and min of the energy, 5 dim in all, into the feature vector
+
+			# print len(delta_mfcc)
+			tempVec.extend(mfcc_feat) # 12
+			# tempVec.extend(delta_mfcc)
+			# tempVec.extend(deltadelta_mfcc)
+			tempVec.append(delta_mfcc) # 1 need to fix
+			tempVec.append(deltadelta_mfcc) # 1 need to fix
+			tempVec.extend(fbank_feat) # 12
+			tempVec.extend(energy_vec) # 5
+
+			clip_name = item.split('.')[0] # name of the clip, as the key in the dictionary
+
+			featureDic[clip_name] = tempVec
+			# print len(tempVec)
+
+			
+			# break
+
+		return featureDic
 
 	#----------------------------------------------------------
 	# the following functions in this class is from zhangzhang liu
 	# delta is the approximate of 1 order derivitive
 
-	def deltacal(win13array, N = 2):
+	def deltacal(self, win12array, N = 2):
 	    n = np.arange(-N, N + 1)
 	    denominate = sum(n**2)
-	    numerator = [sum([win13array[j+i]*i for i in n]) for j in range(N,len(win13array) - N)]
+	    numerator = [sum([win12array[j+i]*i for i in n]) for j in range(N,len(win12array) - N)]
+	    # numerator = [[win12array[j+i]*i for i in n] for j in range(N,len(win12array) - N)]
 	    return numerator/denominate
 	    
 	# second order
-	def deltadelta(delta13array, N = 2):
-	    return delta(delta13array, N = 2)
+	def deltadelta(self, delta12array, N = 2):
+	    return readAudio.deltacal(self, delta12array, N = 2)
 
 
 
@@ -374,27 +444,8 @@ class readLabel: # the class to read a label file
 
 
 
-	def fdebug(self, variable, varnamestr):
-		# readLabel.debug(self, variable, varnamestr)
-		debuglog = open("debuglog.txt", 'a')
-		debuglog.write( "Varname: " +  varnamestr  + '\n')
-		debuglog.write( "Type: " + str(type(variable)) + '\n')
-		debuglog.write( "Length: " + str(len(variable)) + '\n')
-		debuglog.write( "Content: " + '\n')
-		for i in variable:
-			print i
-			debuglog.write(str(i) + '\n')
-		debuglog.write( " " + '\n')
-		debuglog.close()
 
 
-	def debug(self, variable, varnamestr):
-		print "Varname: " +  varnamestr  
-		print "Type: " + str(type(variable))
-		print "Length: " + str(len(variable))
-		print "Content: "
-		print variable
-		print " "
 
 if __name__ == "__main__":
 	
@@ -403,17 +454,18 @@ if __name__ == "__main__":
 
 	InstanceVec = labels.labelVectorGen(1, 2)
 	InstanceDic = labels.insVec2Dic(InstanceVec)
-	# print len(InstanceDic)
-	# for item in InstanceDic:
-	# 	InstanceDic[item].display()
+	print len(InstanceDic)
+	for item in InstanceDic:
+		InstanceDic[item].display()
 
-	# InstanceVec and InstanceDic ready, waiting to put in feature info 
 	
 	
-	# path = "Session1/sentences/wav/Ses01F_impro01"
+	
+	path = "Session1/sentences/wav/Ses01F_impro01"
 
-	# audios = readAudio()
-	# audios.featureVecGen(path)
+	audios = readAudio()
+	featureVec = audios.featureDicGen(path)
+	fdebug(featureVec,"featureVec")
 	
 	# path = os.path.join(path, "sentences")
 
