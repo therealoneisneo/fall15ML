@@ -3,3 +3,5 @@ DataProcess.pyc
 Session1(min)
 fulldata
 *.dtxt
+*.pyc
+.DS_Store

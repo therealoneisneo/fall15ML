@@ -121,7 +121,7 @@ class readAudio: # the class to read an audio file
 		for i in range(rangeStart, rangeEnd):
 			dir1 = rootDir1 + str(i)
 			dir1 = os.path.join(dir1, "sentences")
-			dir1 = os.path.join(dir1, "wav(raw)")
+			dir1 = os.path.join(dir1, "wav")
 			for dir2 in os.listdir(dir1):
 				dir3 = os.path.join(dir1, dir2)
 				print dir3
@@ -155,12 +155,21 @@ class readAudio: # the class to read an audio file
 			tempVec = [] # the feature vector of current clip being processed
 
 			wavepath = os.path.join(audioPath, item)
-			# print "processing " + wavepath
+			print "processing " + wavepath
 			rate, sig = wav.read(wavepath)
 			
 			mfcc_feat = mfcc(sig,rate)
+			# debug(mfcc_feat, "mfcc_feat")
+			# debug(mfcc_feat[0], "mfcc_feat[0]")
+			# break
+
 
 			delta_mfcc = readAudio.deltacal(self, mfcc_feat)
+			# debug(delta_mfcc, "delta_mfcc")
+			# debug(delta_mfcc[0], "delta_mfcc[0]")
+			# break
+
+
 			deltadelta_mfcc = readAudio.deltadelta(self, delta_mfcc)
 			# debug(deltadelta_mfcc, "deltadelta_mfcc")
 
@@ -219,6 +228,7 @@ class readAudio: # the class to read an audio file
 	    n = np.arange(-N, N + 1)
 	    denominate = sum(n**2)
 	    numerator = [sum([win12array[j+i]*i for i in n]) for j in range(N,len(win12array) - N)]
+	    debug(numerator, "numerator")
 	    # numerator = [[win12array[j+i]*i for i in n] for j in range(N,len(win12array) - N)]
 	    return numerator/denominate
 	    
@@ -469,15 +479,17 @@ if __name__ == "__main__":
 	audios = readAudio()
 	featureVecDic = audios.featureDicGen(1, 2)
 
-	# print len(InstanceDic)
-	# print len(featureVecDic)
 
-	for item in InstanceDic:
-		# print item
-		InstanceDic[item].featureVec.extend(featureVecDic[item])
 
-	for item in InstanceDic:
-		InstanceDic[item].display()
+	print len(InstanceDic)
+	print len(featureVecDic)
+
+	# for item in InstanceDic:
+	# 	# print item
+	# 	InstanceDic[item].featureVec.extend(featureVecDic[item])
+
+	# for item in InstanceDic:
+	# 	InstanceDic[item].display()
 
 
 
