@@ -61,6 +61,11 @@ def fdebug(variable, varnamestr):
 
 	return
 
+def merge_two_dicts(x, y):
+    z = x.copy()
+    z.update(y)
+    return z
+
 
 class instances: # the class of a analyzed sentence
 
@@ -106,18 +111,51 @@ class readAudio: # the class to read an audio file
 
 		return
 
-	def featureDicGen(self, audioPath):
-		# mfcc_feat_vec = []
-		# fbank_feat_vec = []
+	def featureDicGen(self, rangeStart, rangeEnd): # generate the dictionary of all instances as the key and their audio feature vector as value
+	
+		rootDir1 = "Session"
 		featureDic = {}
+		tempDiclist = [] # the list for append the tempfeatDic, after all calculations, add them into featureDic
 
 
+		for i in range(rangeStart, rangeEnd):
+			dir1 = rootDir1 + str(i)
+			dir1 = os.path.join(dir1, "sentences")
+			dir1 = os.path.join(dir1, "wav(raw)")
+			for dir2 in os.listdir(dir1):
+				dir3 = os.path.join(dir1, dir2)
+				print dir3
+				tempfeatDic = readAudio.dicGen(self, dir3)
+				tempDiclist.append(tempfeatDic)
 
+		
+
+		for subDic in tempDiclist:
+			for key in subDic:
+				featureDic[key] = subDic[key]
+		# fdebug(featureDic, "featureDic")
+
+		return featureDic
+
+	def dicGen(self, audioPath): # the sub routine in featureDicGen
+		
+
+		featureDic = {}
+		# count = 0 # for test
 		for item in os.listdir(audioPath):
+			# count += 1
+
+			# if count > 4:
+			# 	break
+			# debug(item,"item")
+			if item[-4:] != ".wav":
+				continue
+
+
 			tempVec = [] # the feature vector of current clip being processed
 
 			wavepath = os.path.join(audioPath, item)
-
+			# print "processing " + wavepath
 			rate, sig = wav.read(wavepath)
 			
 			mfcc_feat = mfcc(sig,rate)
@@ -352,11 +390,9 @@ class readLabel: # the class to read a label file
 		return instanceVec
 
 	def labelVectorGen(self, rangeStart, rangeEnd):
-		# fileNames = [] #fileNames of all files
-		# catLabels = [] #file cat labels of all files
-		# VADLabels = [] #file VAD labels of all files
+
 		rootDir1 = "Session"
-		Rdata = readLabel()
+		# Rdata = readLabel()
 		gcount = 0
 
 		FullInsVec = []
@@ -374,39 +410,9 @@ class readLabel: # the class to read a label file
 				fullpath = os.path.join(dir1, files)
 				if os.path.isfile(fullpath):
 					
-					tempInsVec = Rdata.readFile(fullpath)
+					# tempInsVec = Rdata.readFile(fullpath)
+					tempInsVec = readLabel.readFile(self, fullpath)
 					FullInsVec.extend(tempInsVec)
-					
-
-			# print len(FullInsVec)
-			# for item in FullInsVec:
-			# 	item.display()
-
-
-		# debug filelabels line problem
-		# a = 0
-		# for k in fileLabels:
-		# 	# for j in k:
-		# 	if k[0] == 'xxx':
-		# 		print k
-		# 		a = k
-		# 		break
-		# readLabel.debug(self, a, "a")
-
-		# debug filelabels line problem
-
-		# print fileNames
-		# print len(fileNames)
-
-		# print len(filelabels)
-		# print len(vadLabels)
-
-		# if os.path.isfile("names.txt"):
-		# 	os.remove("names.txt")
-		# 	os.remove("category.txt")
-		# 	os.remove("vad.txt")
-
-		# Rdata.saveToFile(fileNames, catLabels,VADLabels, ["names.txt", "category.txt", "vad.txt" ])
 		return FullInsVec
 
 	def insVec2Dic(self, insVec):
@@ -453,19 +459,33 @@ if __name__ == "__main__":
 	labels = readLabel()
 
 	InstanceVec = labels.labelVectorGen(1, 2)
+	# print type(InstanceVec)
 	InstanceDic = labels.insVec2Dic(InstanceVec)
-	print len(InstanceDic)
+	# print len(InstanceDic)
+	# for item in InstanceDic:
+	# 	InstanceDic[item].display()
+
+
+	audios = readAudio()
+	featureVecDic = audios.featureDicGen(1, 2)
+
+	# print len(InstanceDic)
+	# print len(featureVecDic)
+
+	for item in InstanceDic:
+		# print item
+		InstanceDic[item].featureVec.extend(featureVecDic[item])
+
 	for item in InstanceDic:
 		InstanceDic[item].display()
 
-	
-	
-	
-	path = "Session1/sentences/wav/Ses01F_impro01"
 
-	audios = readAudio()
-	featureVec = audios.featureDicGen(path)
-	fdebug(featureVec,"featureVec")
+
+
+
+
+
+	# fdebug(featureVec,"featureVec")
 	
 	# path = os.path.join(path, "sentences")
 
