@@ -14,6 +14,9 @@ import scipy.io.wavfile as wav
 from pylab import*
 
 
+
+
+
 def debug(variable, varnamestr):
 	print "Varname: " +  varnamestr  
 	print "Type: " + str(type(variable))
@@ -107,16 +110,22 @@ class readAudio: # the class to read an audio file
 		return
 
 	def featureDicGen(self, rangeStart, rangeEnd): # generate the dictionary of all instances as the key and their audio feature vector as value
-	
-		rootDir1 = "Session"
+		if mode == "full":
+			rootDir = "fulldata"
+		else:
+			rootDir = ""
+		rootDir1 = os.path.join(rootDir, "Session")
 		featureDic = {}
 		tempDiclist = [] # the list for append the tempfeatDic, after all calculations, add them into featureDic
 
 
-		for i in range(rangeStart, rangeEnd):
+		for i in range(rangeStart, rangeEnd + 1):
 			dir1 = rootDir1 + str(i)
 			dir1 = os.path.join(dir1, "sentences")
-			dir1 = os.path.join(dir1, "wav(min)")
+			if mode == "full":
+				dir1 = os.path.join(dir1, "wav")
+			else:
+				dir1 = os.path.join(dir1, "wav(min)")
 			for dir2 in os.listdir(dir1):
 				dir3 = os.path.join(dir1, dir2)
 				print dir3
@@ -150,7 +159,7 @@ class readAudio: # the class to read an audio file
 			tempVec = [] # the feature vector of current clip being processed
 
 			wavepath = os.path.join(audioPath, item)
-			print "processing " + wavepath
+			# print "processing " + wavepath
 			rate, sig = wav.read(wavepath)
 			
 			mfcc_feat = mfcc(sig,rate)
@@ -250,31 +259,8 @@ class readLabel: # the class to read a label file
 
 		instanceVec = []
 
-		# filenames = [] # 1D vector of filenames
-		
-		# labelMatrix = [] # label matrix, a list of ndarrays
-		# VADMatrix = [] # VAD matrix a list of ndarrays
-
-		# nameBegin = True # the begin indicator of the parsing of filenames
-
-		# catLabel = []
-		# # the entries in catLabel are :
-		# # 0: ground truth
-		# # middle part: evaluator category evaluations
-		# # -1: actor category evaluation
-
-		# VADLabel = []
-
-		# # 1D vector of VAD values : val, act, dom
-		# # 0 - 2 : ground truth
-		# # middle part : VAD evaluation of evaluators (all in 3 -tuples)
-		# # -3 - -1: actor VAD evaluation
-		# print labelPath
 		count = -1
 		while(1):
-
-			
-
 			tempstring = inputfile.readline()
 			if not tempstring:
 				# if len(catLabel): # push the last instance of the file into matrix
@@ -288,44 +274,6 @@ class readLabel: # the class to read a label file
 			if not len(tempstring):
 				continue
 
-			
-
-			
-			#------------------first version of matrix building (start)
-			
-			# if tempstring[0] == '[': # indicate the start of a new instance. read in the filename and the ground truth category label
-
-			# 	tempstring = tempstring.split('\t')
-
-			# # push the category label vector of previous instance into the matrix
-			# 	if len(catLabel):
-			# 		labelMatrix.append(catLabel)
-			# 	if len(VADLabel):
-			# 		VADMatrix.append(VADLabel)
-
-			# 	if nameBegin:
-			# 		filenames = np.asarray(tempstring[1])
-			# 		nameBegin = False
-			# 	else:
-			# 		filenames = np.hstack((filenames, np.asarray(tempstring[1])))
-			# 		# print 1
-			# 		# print filenames
-			# 	# print catLabel
-			# 	catLabel = np.asarray(tempstring[2])
-			# 	# print 2
-			# 	# print catLabel
-
-			# 	vadParse = tempstring[3].strip('[')
-			# 	vadParse = vadParse.strip(']')
-			# 	vadParse = vadParse.split(', ')
-			# 	# print vadParse
-
-			# 	VADLabel = np.asarray(float(vadParse[0]))
-			# 	# print VADLabel
-			# 	VADLabel = np.hstack((VADLabel, np.asarray(float(vadParse[1]))))
-			# 	# print VADLabel
-			# 	VADLabel = np.hstack((VADLabel, np.asarray(float(vadParse[2]))))
-			# 	# print VADLabel
 
 			#------------------first version of matrix building(end)
 			if tempstring[0] == '[': # indicate the start of a new instance. read in the filename and the ground truth category label
@@ -366,25 +314,6 @@ class readLabel: # the class to read a label file
 						cate = cate.strip(';')
 						instanceVec[count].testLabel.append(cate)
 
-				# actor's self vad evaluation is not added in this version
-
-				# if tempstring[0] == 'A-M' or tempstring[0] == 'A-F': # A VAD label
-				# 	tempstring = tempstring.split('\t')
-				# 	tempCate = tempstring[1].split(' ')
-				# 	# print tempCate[6]
-				# 	for i in (1,3,-1):
-				# 		if tempCate[i].strip(';').strip().isdigit():
-				# 			VADLabel = np.hstack((VADLabel, float(tempCate[i].strip(';').strip())))
-				# 		else:
-				# 			VADLabel = np.hstack((VADLabel, -1))
-
-
-			# readLabel.debug(self, VADLabel, "VADLabel")
-
-			# elif labelMatrixBegin:
-			# 	labelMatrix = catLabel
-			# 	labelMatrixBegin = False
-
 		inputfile.close()
 
 
@@ -395,25 +324,26 @@ class readLabel: # the class to read a label file
 		return instanceVec
 
 	def labelVectorGen(self, rangeStart, rangeEnd):
-
-		rootDir1 = "Session"
+		if mode == "full":
+			rootDir = "fulldata"
+		else:
+			rootDir = ""
+		rootDir1 = os.path.join(rootDir, "Session")
 		# Rdata = readLabel()
 		gcount = 0
 
 		FullInsVec = []
 
-		for i in range(rangeStart, rangeEnd):
-		# for i in range(1, 2):
-			# fileNames = [] # fileNames of current session
-			# fileLabels = [] # fileLabels of current session
-			# vadLabels = [] # vadLabels of current session
+		for i in range(rangeStart, rangeEnd + 1):
 			dir1 = rootDir1 + str(i)
 			dir1 = os.path.join(dir1, "dialog")
 			dir1 = os.path.join(dir1, "EmoEvaluation")
 			count = 0
 			for files in os.listdir(dir1):
-				# fullpath = os.path.join(dir1, files) # this is the operation code
-				fullpath = os.path.join(dir1, "Ses01F_impro01.txt") #this is the simplified debug code
+				if mode == "full":
+					fullpath = os.path.join(dir1, files) # this is the operation code
+				else:
+					fullpath = os.path.join(dir1, "Ses01F_impro01.txt") #this is the simplified debug code
 				if os.path.isfile(fullpath):
 					
 					# tempInsVec = Rdata.readFile(fullpath)
@@ -464,7 +394,7 @@ class featureProcessing: # the class for the processing of instances features ma
 		return
 
 	def normalization(self, InstanceDic): # normalize the feature values of instances in the InstanceDic as (x - mu)/ std
-		
+
 		feat_matrix = []
 		feat_matrix1 = []
 		for ins in InstanceDic:
@@ -493,6 +423,15 @@ class featureProcessing: # the class for the processing of instances features ma
 			count += 1
 
 		return InstanceDic
+
+	def getTrainData(self, InstanceDic):
+		trainX = []
+		trainy = []
+		for key in InstanceDic:
+			trainX.append(InstanceDic[key].featureVec)
+			trainy.append(InstanceDic[key].trainingLabel)
+
+		return trainX, trainy
 
 	def writeFile(self, InstanceDic, DestFileName): # write all processed data to file
 		outfile = open(DestFileName, 'w')
@@ -537,39 +476,59 @@ class featureProcessing: # the class for the processing of instances features ma
 if __name__ == "__main__":
 	
 
-	labels = readLabel()
+	# mode = "full" # switch of the debug and full mode 
+	mode = "debug"
 
-	InstanceVec = labels.labelVectorGen(1, 2)
-	# print type(InstanceVec)
-	InstanceDic = labels.insVec2Dic(InstanceVec)
-	# print len(InstanceDic)
-	# for item in InstanceDic:
-	# 	InstanceDic[item].display()
+	processed = True
 
+	# processed = not processed
 
-	audios = readAudio()
-	featureVecDic = audios.featureDicGen(1, 2)
-
-
-
-	# print len(InstanceDic)
-	# print len(featureVecDic)
-
-	for item in InstanceDic:
-		# print item
-		InstanceDic[item].featureVec.extend(featureVecDic[item])
-
-
-
+	# print processed
 	fp = featureProcessing()
-	InstanceDic = fp.normalization(InstanceDic)
+
+	if not processed:
+		labels = readLabel()
+		if mode == "full":
+			InstanceVec = labels.labelVectorGen(1, 5)
+		else:
+			InstanceVec = labels.labelVectorGen(1, 1)
+		# print type(InstanceVec)
+		InstanceDic = labels.insVec2Dic(InstanceVec)
+		# print len(InstanceDic)
+		# for item in InstanceDic:
+		# 	InstanceDic[item].display()
 
 
+		audios = readAudio()
+		if mode == "full":
+			featureVecDic = audios.featureDicGen(1, 5)
+		else:
+			featureVecDic = audios.featureDicGen(1, 1)
+
+
+		# print len(InstanceDic)
+		# print len(featureVecDic)
+
+		for item in InstanceDic:
+			# print item
+			InstanceDic[item].featureVec.extend(featureVecDic[item])
+
+
+
+		
+		InstanceDic = fp.normalization(InstanceDic)
+
+
+		
+		fp.writeFile(InstanceDic, "1.dtxt")
+
+	InstanceDic = fp.readInFile("1.dtxt")
+	# fp.writeFile(testinsDic, "2.dtxt")
 	# for item in InstanceDic:
 	# 	InstanceDic[item].display()
-	fp.writeFile(InstanceDic, "1.dtxt")
-	testinsDic = fp.readInFile("1.dtxt")
-	fp.writeFile(testinsDic, "2.dtxt")
+	trainX, trainy = fp.getTrainData(InstanceDic)
 
+	debug(trainX, "trainX")
+	debug(trainy, "trainy")
 
 
