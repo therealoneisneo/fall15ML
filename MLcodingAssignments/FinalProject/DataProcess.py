@@ -61,11 +61,6 @@ def fdebug(variable, varnamestr):
 
 	return
 
-def merge_two_dicts(x, y):
-    z = x.copy()
-    z.update(y)
-    return z
-
 
 class instances: # the class of a analyzed sentence
 
@@ -121,7 +116,7 @@ class readAudio: # the class to read an audio file
 		for i in range(rangeStart, rangeEnd):
 			dir1 = rootDir1 + str(i)
 			dir1 = os.path.join(dir1, "sentences")
-			dir1 = os.path.join(dir1, "wav")
+			dir1 = os.path.join(dir1, "wav(min)")
 			for dir2 in os.listdir(dir1):
 				dir3 = os.path.join(dir1, dir2)
 				print dir3
@@ -228,7 +223,7 @@ class readAudio: # the class to read an audio file
 	    n = np.arange(-N, N + 1)
 	    denominate = sum(n**2)
 	    numerator = [sum([win12array[j+i]*i for i in n]) for j in range(N,len(win12array) - N)]
-	    debug(numerator, "numerator")
+	    # debug(numerator, "numerator")
 	    # numerator = [[win12array[j+i]*i for i in n] for j in range(N,len(win12array) - N)]
 	    return numerator/denominate
 	    
@@ -417,12 +412,14 @@ class readLabel: # the class to read a label file
 			dir1 = os.path.join(dir1, "EmoEvaluation")
 			count = 0
 			for files in os.listdir(dir1):
-				fullpath = os.path.join(dir1, files)
+				# fullpath = os.path.join(dir1, files) # this is the operation code
+				fullpath = os.path.join(dir1, "Ses01F_impro01.txt") #this is the simplified debug code
 				if os.path.isfile(fullpath):
 					
 					# tempInsVec = Rdata.readFile(fullpath)
 					tempInsVec = readLabel.readFile(self, fullpath)
 					FullInsVec.extend(tempInsVec)
+				break # debug
 		return FullInsVec
 
 	def insVec2Dic(self, insVec):
@@ -460,6 +457,80 @@ class readLabel: # the class to read a label file
 
 
 
+class featureProcessing: # the class for the processing of instances features matrix
+
+	def __init__(self):
+
+		return
+
+	def normalization(self, InstanceDic): # normalize the feature values of instances in the InstanceDic as (x - mu)/ std
+		
+		feat_matrix = []
+		feat_matrix1 = []
+		for ins in InstanceDic:
+			feat_matrix.append(InstanceDic[ins].featureVec)
+		# debug(feat_matrix, "feat_matrix")
+		# print len(feat_matrix[0])
+		meanvec = np.mean(feat_matrix, axis = 0)
+		stdvec = np.std(feat_matrix, axis = 0)
+		for item in feat_matrix:
+			# debug(item, "item")
+			item = np.subtract(item, meanvec)
+			# debug(item, "item")
+			item = np.true_divide(item, stdvec)
+			# debug(item, "item")
+			feat_matrix1.append(list(item))
+			# break
+
+		# debug(feat_matrix1, "feat_matrix1")
+		
+		LabelDic = {'ang': 1, 'fru' : 2, 'sad' : 3, 'hap' : 4, 'neu' : 5, 'xxx' : 6} # mapping of label to scalar category
+
+		count = 0
+		for ins in InstanceDic:
+			InstanceDic[ins].featureVec = feat_matrix1[count]
+			InstanceDic[ins].trainingLabel = LabelDic[InstanceDic[ins].trainingLabel]
+			count += 1
+
+		return InstanceDic
+
+	def writeFile(self, InstanceDic, DestFileName): # write all processed data to file
+		outfile = open(DestFileName, 'w')
+		for item in InstanceDic:
+			outfile.write(str(InstanceDic[item].FileName) + '\n')
+			outfile.write(str(InstanceDic[item].trainingLabel) + '\n')
+			for p in InstanceDic[item].testLabel:
+				outfile.write(str(p) + ' ')
+			outfile.write('\n')
+				# outfile.write(str(InstanceDic[item].testLabel) + '\n')
+			for p in InstanceDic[item].featureVec:
+				outfile.write(str(p) + ' ')
+			outfile.write('\n')
+			# outfile.write(str(InstanceDic[item].featureVec) + '\n')
+		outfile.close()
+		return
+
+	def readInFile(self, featureFile): # read in processed feature from a file created by writeFile()
+
+		InstanceDic = {}
+		infile = open(featureFile, 'r')
+		while(1):
+			line = infile.readline()
+			if not line:
+				break
+			if not len(line.strip()):
+				continue
+			if line[0:3] == 'Ses': # the start of an instance
+				tempIns = instances()
+				tempIns.FileName = line.strip() # store instance name
+				tempIns.trainingLabel = int(infile.readline().strip())
+				line = infile.readline().strip().split(' ') # read in test labels
+				tempIns.testLabel = line
+				line = infile.readline().strip().split(' ') # read in features
+				tempIns.featureVec = [float(x) for x in line]
+
+				InstanceDic[tempIns.FileName] = tempIns
+		return InstanceDic
 
 
 
@@ -481,63 +552,24 @@ if __name__ == "__main__":
 
 
 
-	print len(InstanceDic)
-	print len(featureVecDic)
+	# print len(InstanceDic)
+	# print len(featureVecDic)
 
-	# for item in InstanceDic:
-	# 	# print item
-	# 	InstanceDic[item].featureVec.extend(featureVecDic[item])
+	for item in InstanceDic:
+		# print item
+		InstanceDic[item].featureVec.extend(featureVecDic[item])
+
+
+
+	fp = featureProcessing()
+	InstanceDic = fp.normalization(InstanceDic)
+
 
 	# for item in InstanceDic:
 	# 	InstanceDic[item].display()
+	fp.writeFile(InstanceDic, "1.dtxt")
+	testinsDic = fp.readInFile("1.dtxt")
+	fp.writeFile(testinsDic, "2.dtxt")
 
-
-
-
-
-
-
-	# fdebug(featureVec,"featureVec")
-	
-	# path = os.path.join(path, "sentences")
-
-	# for item in os.listdir(path):
-	# 	wavepath = os.path.join(path, item)
-	# 	rate, sig = wav.read(wavepath)
-	# 	# output.write(str((float(len(b))/float(a))))
-	# 	# output.write(str(a))
-	# 	# output.write('\n')
-	# 	# output.write(str(len(b)))
-	# 	# output.write(str(b))
-	# 	# output.write('\n')
-	# 	mfcc_feat = mfcc(sig,rate)
-	# 	fbank_feat = logfbank(sig,rate) 
-	# 	# print mfcc_feat
-
-
-	# 	# for item in fbank_feat:
-	# 	# # for item in 
-	# 	# 	print item
-	# 	# 	break
-	# 	print fbank_feat[0]
-	# 	print mfcc_feat[0]
-	# 	# for item in mfcc_feat:
-	# 	# 	print item
-	# 		# output.write(item)
-	# 	# output.write(fbank_feat)
-	# 	# print len(fbank_feat)
-	# 	break
-	# 	# print len(mfcc_feat)
-
-
-		# temp = wv.open(wavepath, 'r')
-		# print temp.getparams()
-		# print temp.readframes(1000)
-
-	# 	break
-	# wavepath = os.path.join(path, item)
-	# a, b = wavfile.read(path)
-	# print a
-	# print b
 
 
