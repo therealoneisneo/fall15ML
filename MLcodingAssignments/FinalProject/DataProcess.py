@@ -414,7 +414,7 @@ class featureProcessing: # the class for the processing of instances features ma
 
 		# debug(feat_matrix1, "feat_matrix1")
 		
-		LabelDic = {'ang': 1, 'fru' : 2, 'sad' : 3, 'hap' : 4, 'neu' : 5, 'xxx' : 6} # mapping of label to scalar category
+		LabelDic = {'ang': 1, 'fru' : 2, 'sad' : 3, 'hap' : 4, 'neu' : 5, 'xxx' : 6 , 'sur' : 7} # mapping of label to scalar category
 
 		count = 0
 		for ins in InstanceDic:
@@ -476,12 +476,12 @@ class featureProcessing: # the class for the processing of instances features ma
 if __name__ == "__main__":
 	
 
-	# mode = "full" # switch of the debug and full mode 
-	mode = "debug"
+	mode = "full" # switch of the debug and full mode 
+	# mode = "debug"
 
 	processed = True
 
-	# processed = not processed
+	processed = not processed
 
 	# print processed
 	fp = featureProcessing()
@@ -494,9 +494,6 @@ if __name__ == "__main__":
 			InstanceVec = labels.labelVectorGen(1, 1)
 		# print type(InstanceVec)
 		InstanceDic = labels.insVec2Dic(InstanceVec)
-		# print len(InstanceDic)
-		# for item in InstanceDic:
-		# 	InstanceDic[item].display()
 
 
 		audios = readAudio()
@@ -522,13 +519,13 @@ if __name__ == "__main__":
 		
 		fp.writeFile(InstanceDic, "1.dtxt")
 
-	InstanceDic = fp.readInFile("1.dtxt")
-	# fp.writeFile(testinsDic, "2.dtxt")
-	# for item in InstanceDic:
-	# 	InstanceDic[item].display()
-	trainX, trainy = fp.getTrainData(InstanceDic)
+	# InstanceDic = fp.readInFile("1.dtxt")
+	# # fp.writeFile(testinsDic, "2.dtxt")
+	# # for item in InstanceDic:
+	# # 	InstanceDic[item].display()
+	# trainX, trainy = fp.getTrainData(InstanceDic)
 
-	debug(trainX, "trainX")
-	debug(trainy, "trainy")
+	# debug(trainX, "trainX")
+	# debug(trainy, "trainy")
 
 
