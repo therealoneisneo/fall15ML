@@ -14,7 +14,7 @@ import scipy.io.wavfile as wav
 from pylab import*
 
 
-
+LabelDic = {'ang': 1, 'fru' : 2, 'sad' : 3, 'hap' : 4, 'neu' : 5, 'xxx' : 6 , 'sur' : 7, 'exc' : 8, 'dis' : 9, 'fea' : 10, 'oth': 11} # mapping of label to scalar category
 
 
 def debug(variable, varnamestr):
@@ -402,7 +402,7 @@ class featureProcessing: # the class for the processing of instances features ma
 
 		# debug(feat_matrix1, "feat_matrix1")
 		
-		LabelDic = {'ang': 1, 'fru' : 2, 'sad' : 3, 'hap' : 4, 'neu' : 5, 'xxx' : 6 , 'sur' : 7, 'exc' : 8, 'dis' : 9, 'fea' : 10, 'oth': 11} # mapping of label to scalar category
+		
 
 		count = 0
 		for ins in InstanceDic:
