@@ -263,10 +263,7 @@ class readLabel: # the class to read a label file
 		while(1):
 			tempstring = inputfile.readline()
 			if not tempstring:
-				# if len(catLabel): # push the last instance of the file into matrix
-				# 	labelMatrix.append(catLabel)
-				# if len(VADLabel):
-				# 	VADMatrix.append(VADLabel)
+
 				break
 			
 			tempstring = tempstring.strip()
@@ -274,8 +271,6 @@ class readLabel: # the class to read a label file
 			if not len(tempstring):
 				continue
 
-
-			#------------------first version of matrix building(end)
 			if tempstring[0] == '[': # indicate the start of a new instance. read in the filename and the ground truth category label
 				count += 1
 
@@ -290,13 +285,6 @@ class readLabel: # the class to read a label file
 				vadParse = tempstring[3].strip('[')
 				vadParse = vadParse.strip(']')
 				vadParse = vadParse.split(', ')
-				# print vadParse
-				# vadParse = vadParse.astype(np.float)
-				# vadParse = float(vadParse)
-				# for item in vadParse:
-				# for idx in range(len(vadParse)):
-					# vadParse[i] = float(vadParse[i]
-				# map(float, vadParse)
 				vadParse = [float(item) for item in vadParse] # the mean vad value from evaluators
 				for item in vadParse:
 					tempInstance.featureVec.append(item)
@@ -349,7 +337,7 @@ class readLabel: # the class to read a label file
 					# tempInsVec = Rdata.readFile(fullpath)
 					tempInsVec = readLabel.readFile(self, fullpath)
 					FullInsVec.extend(tempInsVec)
-				break # debug
+				# break # debug
 		return FullInsVec
 
 	def insVec2Dic(self, insVec):
@@ -414,7 +402,7 @@ class featureProcessing: # the class for the processing of instances features ma
 
 		# debug(feat_matrix1, "feat_matrix1")
 		
-		LabelDic = {'ang': 1, 'fru' : 2, 'sad' : 3, 'hap' : 4, 'neu' : 5, 'xxx' : 6 , 'sur' : 7} # mapping of label to scalar category
+		LabelDic = {'ang': 1, 'fru' : 2, 'sad' : 3, 'hap' : 4, 'neu' : 5, 'xxx' : 6 , 'sur' : 7, 'exc' : 8, 'dis' : 9, 'fea' : 10, 'oth': 11} # mapping of label to scalar category
 
 		count = 0
 		for ins in InstanceDic:
@@ -472,16 +460,11 @@ class featureProcessing: # the class for the processing of instances features ma
 		return InstanceDic
 
 
-
-if __name__ == "__main__":
-	
-
+def getTrainingData(datafilename, processed): # the callable version of main. return the instance vector dictionary and trainX, trainy
 	mode = "full" # switch of the debug and full mode 
 	# mode = "debug"
 
-	processed = True
-
-	processed = not processed
+	# processed = not processed
 
 	# print processed
 	fp = featureProcessing()
@@ -502,10 +485,6 @@ if __name__ == "__main__":
 		else:
 			featureVecDic = audios.featureDicGen(1, 1)
 
-
-		# print len(InstanceDic)
-		# print len(featureVecDic)
-
 		for item in InstanceDic:
 			# print item
 			InstanceDic[item].featureVec.extend(featureVecDic[item])
@@ -517,9 +496,69 @@ if __name__ == "__main__":
 
 
 		
-		fp.writeFile(InstanceDic, "1.dtxt")
+		fp.writeFile(InstanceDic, datafilename)
 
-	# InstanceDic = fp.readInFile("1.dtxt")
+	InstanceDic = fp.readInFile(datafilename)
+
+	trainX, trainy = fp.getTrainData(InstanceDic)
+
+	# debug(trainX, "trainX")
+	# debug(trainy, "trainy")
+
+	return InstanceDic, trainX, trainy
+
+
+
+
+
+
+if __name__ == "__main__":
+	
+
+	getTrainingData(datafilename = "train.data", processed = True)
+
+	# mode = "full" # switch of the debug and full mode 
+	# # mode = "debug"
+
+	# processed = True
+
+	# # processed = not processed
+
+	# # print processed
+	# fp = featureProcessing()
+
+	# if not processed:
+	# 	labels = readLabel()
+	# 	if mode == "full":
+	# 		InstanceVec = labels.labelVectorGen(1, 5)
+	# 	else:
+	# 		InstanceVec = labels.labelVectorGen(1, 1)
+	# 	# print type(InstanceVec)
+	# 	InstanceDic = labels.insVec2Dic(InstanceVec)
+
+
+	# 	audios = readAudio()
+	# 	if mode == "full":
+	# 		featureVecDic = audios.featureDicGen(1, 5)
+	# 	else:
+	# 		featureVecDic = audios.featureDicGen(1, 1)
+
+	# 	for item in InstanceDic:
+	# 		# print item
+	# 		InstanceDic[item].featureVec.extend(featureVecDic[item])
+
+
+
+		
+	# 	InstanceDic = fp.normalization(InstanceDic)
+
+
+		
+	# 	fp.writeFile(InstanceDic, "traindata.dtxt")
+
+	# InstanceDic = fp.readInFile("traindata.dtxt")
+
+	# print len(InstanceDic)
 	# # fp.writeFile(testinsDic, "2.dtxt")
 	# # for item in InstanceDic:
 	# # 	InstanceDic[item].display()
