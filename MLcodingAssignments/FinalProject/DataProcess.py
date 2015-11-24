@@ -530,18 +530,43 @@ class trainingData:
 
 		# debug(trainX, "trainX")
 		# debug(trainy, "trainy")
-		self.instanceVec = instanceVec
+		self.InstanceDic = InstanceDic
 		self.fulltrain = trainX, trainy
 
 		return InstanceDic, trainX, trainy
 
 
-def leave1SesOut(self, leaveOutSes = 0): # returns a pair of TrainX and Trainy, leave one session out for test, defined by "leaveOutSes"
-	
+	def leave1SesOut(self, leaveOutSes = 0): # returns a pair of TrainX and Trainy, leave one session out for test, defined by "leaveOutSes"
+		trainX = []
+		trainy = []
+		testX = []
+		testy = []
+		leaveOutSes = int(leaveOutSes)
+		for key in self.InstanceDic:
+			sesIdx = int(key.split('_')[0][-2])
+			if sesIdx == leaveOutSes:
+				testX.append(self.InstanceDic[key].featureVec)
+				testy.append(self.InstanceDic[key].trainingLabel)
+			else:
+				trainX.append(self.InstanceDic[key].featureVec)
+				trainy.append(self.InstanceDic[key].trainingLabel)
 
+		return trainX, trainy, testX, testy
 
-
-	return
+	def male_female(self, testgender = None): # split male and female instance and return training and testing data
+		trainX = []
+		trainy = []
+		testX = []
+		testy = []
+		for key in self.InstanceDic:
+			gender = key.split('_')[0][-1]
+			if gender == testgender:
+				trainX.append(self.InstanceDic[key].featureVec)
+				trainy.append(self.InstanceDic[key].trainingLabel)
+			else:
+				testX.append(self.InstanceDic[key].featureVec)
+				testy.append(self.InstanceDic[key].trainingLabel)
+		return trainX, trainy, testX, testy
 
 
 
