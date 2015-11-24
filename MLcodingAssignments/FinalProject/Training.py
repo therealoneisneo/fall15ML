@@ -4,9 +4,14 @@ import DataProcess as dp
 
 
 
+Tdata = dp.trainingData()
 
-InstanceDic, trainX, trainy = dp.getTrainingData("train.data", False)
 
-# for key in InstanceDic:
-# 	print len(InstanceDic[key].featureVec)
+
+InstanceDic, trainX, trainy = Tdata.getTrainingData("train.data", False)
+
+
+
+for key in Tdata.InstanceDic:
+	print len(Tdata.InstanceDic[key].featureVec)
 

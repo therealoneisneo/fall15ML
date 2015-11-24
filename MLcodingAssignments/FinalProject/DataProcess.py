@@ -476,50 +476,72 @@ class featureProcessing: # the class for the processing of instances features ma
 		return InstanceDic
 
 
-def getTrainingData(datafilename, processed = True): # the callable version of main. return the instance vector dictionary and trainX, trainy
+class trainingData:
 
-	# processed = not processed
+	'''the class to get, store, split data for cross validation'''
 
-	# print processed
-	fp = featureProcessing()
+	def __init__(self):
+		self.InstanceDic = [] # the dictionary of all instance
+		self.fulltrain = [] # the full training data , a tuple contains X and y
 
-	if not processed:
-		labels = readLabel()
-		if mode == "full":
-			InstanceVec = labels.labelVectorGen(1, 5)
-		else:
-			InstanceVec = labels.labelVectorGen(1, 1)
-		# print type(InstanceVec)
-		InstanceDic = labels.insVec2Dic(InstanceVec)
-
-
-		audios = readAudio()
-		if mode == "full":
-			featureVecDic = audios.featureDicGen(1, 5)
-		else:
-			featureVecDic = audios.featureDicGen(1, 1)
-
-		for item in InstanceDic:
-			# print item
-			InstanceDic[item].featureVec.extend(featureVecDic[item])
+		return
 
 
 
-		
-		InstanceDic = fp.normalization(InstanceDic)
+	def getTrainingData(self, datafilename, processed = True): # the callable version of main. return the instance vector dictionary and trainX, trainy
+
+		# processed = not processed
+
+		# print processed
+		fp = featureProcessing()
+
+		if not processed:
+			labels = readLabel()
+			if mode == "full":
+				InstanceVec = labels.labelVectorGen(1, 5)
+			else:
+				InstanceVec = labels.labelVectorGen(1, 1)
+			# print type(InstanceVec)
+			InstanceDic = labels.insVec2Dic(InstanceVec)
 
 
-		
-		fp.writeFile(InstanceDic, datafilename)
+			audios = readAudio()
+			if mode == "full":
+				featureVecDic = audios.featureDicGen(1, 5)
+			else:
+				featureVecDic = audios.featureDicGen(1, 1)
 
-	InstanceDic = fp.readInFile(datafilename)
+			for item in InstanceDic:
+				# print item
+				InstanceDic[item].featureVec.extend(featureVecDic[item])
 
-	trainX, trainy = fp.getTrainData(InstanceDic)
 
-	# debug(trainX, "trainX")
-	# debug(trainy, "trainy")
 
-	return InstanceDic, trainX, trainy
+			
+			InstanceDic = fp.normalization(InstanceDic)
+
+
+			
+			fp.writeFile(InstanceDic, datafilename)
+
+		InstanceDic = fp.readInFile(datafilename)
+
+		trainX, trainy = fp.getTrainData(InstanceDic)
+
+		# debug(trainX, "trainX")
+		# debug(trainy, "trainy")
+		self.instanceVec = instanceVec
+		self.fulltrain = trainX, trainy
+
+		return InstanceDic, trainX, trainy
+
+
+def leave1SesOut(self, leaveOutSes = 0): # returns a pair of TrainX and Trainy, leave one session out for test, defined by "leaveOutSes"
+	
+
+
+
+	return
 
 
 
@@ -529,7 +551,7 @@ def getTrainingData(datafilename, processed = True): # the callable version of m
 if __name__ == "__main__":
 	
 
-	InstanceDic, trainX, trainy = getTrainingData(datafilename = "train.data", processed = False)
+	InstanceDic, trainX, trainy = getTrainingData(datafilename = "train.data", processed = True)
 
 	
 	# mode = "debug"
