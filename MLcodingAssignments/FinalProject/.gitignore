@@ -5,3 +5,4 @@ fulldata
 *.dtxt
 *.pyc
 .DS_Store
+*.data
