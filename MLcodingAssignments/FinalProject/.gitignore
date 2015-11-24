@@ -6,3 +6,4 @@ fulldata
 *.pyc
 .DS_Store
 *.data
+train.data
