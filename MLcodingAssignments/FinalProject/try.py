@@ -1,18 +1,21 @@
 import numpy as np
 import DataProcess as dp
 
-A = 3.0
-d = 4.0
+
+a = [1,2,3,4,5]
+b = np.asarray(a)
+c = list(b)
+print type(a)
+print a 
+
+print type(b)
+print b 
 
 
-def con(A, d, limit):
+print type(c)
+print c
 
-	temp = (float(A)/float(d)) * np.sqrt(2/(np.pi * np.e))
-	if temp < limit:
-		return 1
-	else:
-		return 0 
+a.extend(b)
 
-
-print con(3,7,11)
-
+print type(a)
+print a

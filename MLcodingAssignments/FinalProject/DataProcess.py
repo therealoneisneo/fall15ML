@@ -14,6 +14,11 @@ import scipy.io.wavfile as wav
 from pylab import*
 
 
+mode = "full" # switch of the debug and full mode 
+# mode = "debug"
+
+
+
 LabelDic = {'ang': 1, 'fru' : 2, 'sad' : 3, 'hap' : 4, 'neu' : 5, 'xxx' : 6 , 'sur' : 7, 'exc' : 8, 'dis' : 9, 'fea' : 10, 'oth': 11} # mapping of label to scalar category
 
 
@@ -163,22 +168,32 @@ class readAudio: # the class to read an audio file
 			rate, sig = wav.read(wavepath)
 			
 			mfcc_feat = mfcc(sig,rate)
+			mfcc_feat = mfcc_feat[:, 1:13]
+			# print mfcc_feat.shape
 			# debug(mfcc_feat, "mfcc_feat")
 			# debug(mfcc_feat[0], "mfcc_feat[0]")
 			# break
 
 
 			delta_mfcc = readAudio.deltacal(self, mfcc_feat)
+			# print delta_mfcc.shape
 			# debug(delta_mfcc, "delta_mfcc")
 			# debug(delta_mfcc[0], "delta_mfcc[0]")
+			# print type(delta_mfcc[0,0])
 			# break
 
 
 			deltadelta_mfcc = readAudio.deltadelta(self, delta_mfcc)
 			# debug(deltadelta_mfcc, "deltadelta_mfcc")
+			# print deltadelta_mfcc.shape
+			# break
+
+			mfcc_feat = np.mean(mfcc_feat, axis = 0)
+			# print mfcc_feat.shape
+
+			# break
 
 
-			mfcc_feat = np.mean(mfcc_feat[:, 1:13], axis = 0)
 			delta_mfcc = np.mean(delta_mfcc, axis = 0)
 			deltadelta_mfcc = np.mean(deltadelta_mfcc, axis = 0)
 
@@ -207,10 +222,8 @@ class readAudio: # the class to read an audio file
 
 			# print len(delta_mfcc)
 			tempVec.extend(mfcc_feat) # 12
-			# tempVec.extend(delta_mfcc)
-			# tempVec.extend(deltadelta_mfcc)
-			tempVec.append(delta_mfcc) # 1 need to fix
-			tempVec.append(deltadelta_mfcc) # 1 need to fix
+			tempVec.extend(delta_mfcc)#12
+			tempVec.extend(deltadelta_mfcc) #12
 			tempVec.extend(fbank_feat) # 12
 			tempVec.extend(energy_vec) # 5
 
@@ -224,17 +237,20 @@ class readAudio: # the class to read an audio file
 
 		return featureDic
 
-	#----------------------------------------------------------
-	# the following functions in this class is from zhangzhang liu
-	# delta is the approximate of 1 order derivitive
-
 	def deltacal(self, win12array, N = 2):
-	    n = np.arange(-N, N + 1)
-	    denominate = sum(n**2)
-	    numerator = [sum([win12array[j+i]*i for i in n]) for j in range(N,len(win12array) - N)]
-	    # debug(numerator, "numerator")
-	    # numerator = [[win12array[j+i]*i for i in n] for j in range(N,len(win12array) - N)]
-	    return numerator/denominate
+		delta = []
+		a = range(N + 1)
+		denominate = 2 * np.dot(a, a)
+		win12array = np.asarray(win12array).T
+		row, col = win12array.shape
+		window = range(-N, N + 1)
+		for i in range(row):
+			temprow = []
+			for j in range(col - 2 * N):
+				temprow.append(np.dot(win12array[i, j : j+5], window)/denominate)
+			delta.append(np.asarray(temprow))
+		delta = np.asarray(delta).T
+		return delta
 	    
 	# second order
 	def deltadelta(self, delta12array, N = 2):
@@ -460,9 +476,7 @@ class featureProcessing: # the class for the processing of instances features ma
 		return InstanceDic
 
 
-def getTrainingData(datafilename, processed): # the callable version of main. return the instance vector dictionary and trainX, trainy
-	mode = "full" # switch of the debug and full mode 
-	# mode = "debug"
+def getTrainingData(datafilename, processed = True): # the callable version of main. return the instance vector dictionary and trainX, trainy
 
 	# processed = not processed
 
@@ -515,10 +529,10 @@ def getTrainingData(datafilename, processed): # the callable version of main. re
 if __name__ == "__main__":
 	
 
-	getTrainingData(datafilename = "train.data", processed = True)
+	InstanceDic, trainX, trainy = getTrainingData(datafilename = "train.data", processed = False)
 
-	# mode = "full" # switch of the debug and full mode 
-	# # mode = "debug"
+	
+	# mode = "debug"
 
 	# processed = True
 
