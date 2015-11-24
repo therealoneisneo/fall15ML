@@ -553,30 +553,131 @@ class trainingData:
 
 		return trainX, trainy, testX, testy
 
-	def male_female(self, testgender = None): # split male and female instance and return training and testing data
+	def male_female(self, traingender = None): # split male and female instance and return training and testing data
 		trainX = []
 		trainy = []
 		testX = []
 		testy = []
 		for key in self.InstanceDic:
 			gender = key.split('_')[0][-1]
-			if gender == testgender:
+			if gender == traingender:
 				trainX.append(self.InstanceDic[key].featureVec)
 				trainy.append(self.InstanceDic[key].trainingLabel)
 			else:
 				testX.append(self.InstanceDic[key].featureVec)
 				testy.append(self.InstanceDic[key].trainingLabel)
-		return trainX, trainy, testX, testy
+		return trainX, trainy, testX, testy 
+
+
+	def controlCV(self, fold = 1): # cross validation data split, the portion of data extracted from each session is controled. returns train and test
+	#train[i] and test[i] means the train and test data of i fold
+		trainX = []
+		trainy = []
+		testX = []
+		testy = []
+
+		for i in range(fold):
+			trainX.append([])
+			trainy.append([])
+			testX.append([])
+			testy.append([])
+		# print trainX
+		# print trainy
+		# print testX
+		# print testy
+
+		MaleTrainX = []
+		FemaleTrainX = []
+		Maletrainy = []
+		Femaletrainy = []
+		for i in range(5):
+			MaleTrainX.append([])
+			FemaleTrainX.append([])
+			Maletrainy.append([])
+			Femaletrainy.append([])
+		# print MaleTrain
+		# print FemaleTrain
+		# print MaleTest
+		# print FemaleTest
+
+		for key in self.InstanceDic:
+
+			gender = key.split('_')[0][-1]
+			Ses = int(key.split('_')[0][-2]) - 1
+
+			if gender == "F":
+				FemaleTrainX[Ses].append(self.InstanceDic[key].featureVec)
+				Femaletrainy[Ses].append(self.InstanceDic[key].trainingLabel)
+			else:
+				MaleTrainX[Ses].append(self.InstanceDic[key].featureVec)
+				Maletrainy[Ses].append(self.InstanceDic[key].trainingLabel)
+		# count = 0
+		for i in range(5): # loop on Sessions
+			np.random.seed()
+			tempMaleidx = range(len(MaleTrainX[i]))
+			tempFemaleidx = range(len(FemaleTrainX[i]))
+			np.random.shuffle(tempMaleidx)
+			np.random.shuffle(tempFemaleidx)
+
+			Mfoldlength = len(tempMaleidx)/fold
+			Ffoldlength = len(tempFemaleidx)/fold
+			
+			for j in range(fold): # loop on folds
+				if j == fold - 1:
+					Midxfold = tempMaleidx[j * Mfoldlength : ]
+					Fidxfold = tempFemaleidx[j * Ffoldlength : ]
+				else:
+					Midxfold = tempMaleidx[j * Mfoldlength : (j + 1) * Mfoldlength]
+					Fidxfold = tempFemaleidx[j * Ffoldlength : (j + 1) * Ffoldlength]
+				for k in range(len(tempMaleidx)): # extract fold to train and test
+					if k in Midxfold:# add to test
+						MaleTrainX[i,k]
+					else:
+
+				# count += len(Midxfold)
+				# count += len(Fidxfold)
+				# print count
+
+
+
+
+			# print Mfoldlength
+			# print Ffoldlength
+
+			# print tempMaleidx
+			# print tempFemaleidx
 
 
 
 
 
+		# for i in range(5):
+		# 	print len(MaleTrainX[i])
+		# 	print len(FemaleTrainX[i])
+		# 	print len(Maletrainy[i])
+		# 	print len(Femaletrainy[i])
+		# 	print "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+	
+		return
 
 if __name__ == "__main__":
 	
+	Tdata = trainingData()
+	Tdata.getTrainingData("train.data", True)
+	
+	# a,b,c,d = Tdata.leave1SesOut(2)
 
-	InstanceDic, trainX, trainy = getTrainingData(datafilename = "train.data", processed = True)
+	# a,b,c,d = Tdata.male_female("F")
+	Tdata.controlCV(6)
+
+
+	# print len(a)
+	# # print b
+	# print len(c)
+
+	# print d
+	
+
 
 	
 	# mode = "debug"

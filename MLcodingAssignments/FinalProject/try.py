@@ -2,20 +2,16 @@ import numpy as np
 import DataProcess as dp
 
 
-a = [1,2,3,4,5]
-b = np.asarray(a)
-c = list(b)
-print type(a)
-print a 
-
-print type(b)
-print b 
+a = range(15)
 
 
-print type(c)
-print c
+np.random.seed()
 
-a.extend(b)
+np.random.shuffle(a)
 
-print type(a)
-print a
+b = 6
+if b in a:
+	print "OK"
+
+
+# print a 
