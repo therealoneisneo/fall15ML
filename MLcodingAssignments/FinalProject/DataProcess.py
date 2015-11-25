@@ -631,34 +631,26 @@ class trainingData:
 					Fidxfold = tempFemaleidx[j * Ffoldlength : (j + 1) * Ffoldlength]
 				for k in range(len(tempMaleidx)): # extract fold to train and test
 					if k in Midxfold:# add to test
-						MaleTrainX[i,k]
+						testX[j].append(MaleTrainX[i][k])
+						testy[j].append(Maletrainy[i][k])
 					else:
-
-				# count += len(Midxfold)
-				# count += len(Fidxfold)
-				# print count
-
-
-
-
-			# print Mfoldlength
-			# print Ffoldlength
-
-			# print tempMaleidx
-			# print tempFemaleidx
-
-
-
-
-
-		# for i in range(5):
-		# 	print len(MaleTrainX[i])
-		# 	print len(FemaleTrainX[i])
-		# 	print len(Maletrainy[i])
-		# 	print len(Femaletrainy[i])
-		# 	print "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+						trainX[j].append(MaleTrainX[i][k])
+						trainy[j].append(Maletrainy[i][k])
+				for k in range(len(tempFemaleidx)): # extract fold to train and test
+					if k in Fidxfold:# add to test
+						testX[j].append(FemaleTrainX[i][k])
+						testy[j].append(Femaletrainy[i][k])
+					else:
+						trainX[j].append(FemaleTrainX[i][k])
+						trainy[j].append(Femaletrainy[i][k])
+		# for i in range(fold):
+		# 	print i
+		# 	print len(trainX[i])
+		# 	print len(trainy[i])
+		# 	print len(testX[i])
+		# 	print len(testy[i])
 	
-		return
+		return trainX, trainy, testX, testy
 
 if __name__ == "__main__":
 	
@@ -668,14 +660,14 @@ if __name__ == "__main__":
 	# a,b,c,d = Tdata.leave1SesOut(2)
 
 	# a,b,c,d = Tdata.male_female("F")
-	Tdata.controlCV(6)
+	a,b,c,d = Tdata.controlCV(5)
 
 
-	# print len(a)
-	# # print b
-	# print len(c)
+	print len(a[0])
+	print len(b[0])
+	print len(c[0])
 
-	# print d
+	print len(d[0])
 	
 
 
