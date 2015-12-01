@@ -1,17 +1,12 @@
 import numpy as np
 import DataProcess as dp
+import tensorflow as tf
 
 
-a = range(15)
+a = tf.Variable(tf.random_normal([20,50], stddev = 1.2), name = "weights")
 
+print a
 
-np.random.seed()
-
-np.random.shuffle(a)
-
-b = 6
-if b in a:
-	print "OK"
 
 
 # print a 

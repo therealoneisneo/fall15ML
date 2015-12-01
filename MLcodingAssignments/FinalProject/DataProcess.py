@@ -651,23 +651,45 @@ class trainingData:
 		# 	print len(testy[i])
 	
 		return trainX, trainy, testX, testy
+	def xxxtrans(self): # determing all instance with "xxx" label into its first emo evaluation
+		Dic = self.InstanceDic
+		# check = set()
+		# count = 0
+		for key in Dic:
+			if Dic[key].trainingLabel == 6:
+				# check.add(Dic[key].testLabel[0])
+				temp = Dic[key].testLabel[0].lower()[:3]
+				# print temp
+				Dic[key].trainingLabel = LabelDic[temp]
+				# print LabelDic[temp]
+				# print Dic[key].trainingLabel
+				# count += 1
+		# print check
+		return Dic
 
 if __name__ == "__main__":
 	
 	Tdata = trainingData()
 	Tdata.getTrainingData("train.data", True)
+	Dic = Tdata.xxxtrans();
+
+	print len(Dic)
+
+	fp = featureProcessing()
+
+	fp.writeFile(Dic, "train1.data")
 	
 	# a,b,c,d = Tdata.leave1SesOut(2)
 
 	# a,b,c,d = Tdata.male_female("F")
-	a,b,c,d = Tdata.controlCV(5)
+	# a,b,c,d = Tdata.controlCV(5)
 
 
-	print len(a[0])
-	print len(b[0])
-	print len(c[0])
+	# print len(a[0])
+	# print len(b[0])
+	# print len(c[0])
 
-	print len(d[0])
+	# print len(d[0])
 	
 
 
