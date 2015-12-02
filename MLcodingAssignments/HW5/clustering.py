@@ -85,6 +85,7 @@ def kmeans(X, k, maxIter):
     seeds = seed(X, k)
     count = 0
     while (count < maxIter):
+        count += 1
         print "iteration: " + str(count)
         for i in range(num):
             dis = 100000000000
@@ -106,7 +107,9 @@ def kmeans(X, k, maxIter):
         # break
         # break  # or diff > tolerance
 
-        count += 1
+    # print seeds
+    objectiveFunc = objFunc(instances, labels, seeds)
+
     clusters = []
     for i in range(k):
         clusters.append([])
@@ -115,14 +118,13 @@ def kmeans(X, k, maxIter):
         clusters[int(labels[i])].append(instances[i])
     for i in range(len(clusters)):
         clusters[i] = np.asarray(clusters[i])
-    print type(clusters[0])
     colors = ["blue", "yellow", "red", "green", "black", "orange", "purple"]
 
-    plt.title("Scatter plot of clusters")
-    for i in range(k):
-        plt.scatter(clusters[i].T[0], clusters[i].T[1], 2, color = colors[i])
-    plt.show()
-    return labels
+    # plt.title("Scatter plot of clusters")
+    # for i in range(k):
+    #     plt.scatter(clusters[i].T[0], clusters[i].T[1], 2, color = colors[i])
+    # plt.show()
+    return labels, objectiveFunc
 
 def purity(labels, trueLabels):
     check = set(labels)
@@ -148,25 +150,50 @@ def purity(labels, trueLabels):
     # print count
     # return
 
+
+def objFunc(ins, labels, seeds):
+    clu_num = len(seeds)
+    ins_num = len(ins)
+    obj = np.zeros(clu_num)
+    # print len(labels)
+    for i in range(ins_num):
+        tempdis = np.linalg.norm(seeds[labels[i]] - ins[i])
+        obj[labels[i]] += tempdis
+        # break
+    return sum(obj)
+
 if __name__ == '__main__':
     # model = sys.argv[1]
     # train = sys.argv[2]
     # test = sys.argv[3]
 
-    path1 = "data_sets_clustering/audioData.txt"
-    path2 = "data_sets_clustering/humanData.txt"
-    X = LoadData(path2)
+    path1 = "data_sets_clustering/humanData.txt"
+    path2 = "data_sets_clustering/audioData.txt"
+    X = LoadData(path1)
     trueLabels = X.T[-1]
     labels = []
     pure = []
-    # kmeans(X, 2, 100)
+    obj = []
+
+    for i in range(1, 7):
+        labels, objfunc = kmeans(X, i, 2000)
+        obj.append(objfunc)
+    print obj
+
+    xaxis = range(1,7)
+
+    plt.title("plot of objective function")
+    
+    plt.plot(xaxis, obj, color = "red", linewidth = 2)
+    plt.show()
+    
 
 
-    for i in range(1,7):
-        temp = kmeans(X, i, 100)
-        labels.append(temp)
-        pure.append(purity(temp,trueLabels))
-    print pure
+    # for i in range(1,7):
+    #     temp, dum = kmeans(X, i, 100)
+    #     labels.append(temp)
+    #     pure.append(purity(temp,trueLabels))
+    # print pure
 
 
 

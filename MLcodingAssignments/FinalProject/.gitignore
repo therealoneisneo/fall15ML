@@ -7,3 +7,4 @@ fulldata
 .DS_Store
 *.data
 train.data
+*.npy
