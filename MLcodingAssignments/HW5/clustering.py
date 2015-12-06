@@ -126,7 +126,7 @@ def kmeans(X, k, maxIter):
     # plt.show()
     return labels, objectiveFunc
 
-def purity(labels, trueLabels):
+def purity(labels, trueLabels): #claculate to purity of the cluster
     check = set(labels)
     # print check
     clusternum = len(check)
@@ -146,9 +146,11 @@ def purity(labels, trueLabels):
     # print countMatrix
     for i in range(clusternum):
         puri[i] = np.max(countMatrix[i])
-    return np.mean(puri/count)
-    # print count
-    # return
+
+    # mean = np.mean(puri/count)
+    # print mean
+    return sum(puri)/len(labels)
+
 
 
 def objFunc(ins, labels, seeds):
@@ -175,11 +177,17 @@ if __name__ == '__main__':
     pure = []
     obj = []
 
-    for i in range(1, 7):
-        labels, objfunc = kmeans(X, i, 2000)
-        obj.append(objfunc)
-    print obj
+##################### Objctive funciton and purity
 
+    for i in range(1, 7):
+        temp, objfunc = kmeans(X, i, 2000)
+        obj.append(objfunc)
+        labels.append(temp)
+        pure.append(purity(temp,trueLabels))
+    print obj
+    print pure
+
+##################### Plot only for path 1
     xaxis = range(1,7)
 
     plt.title("plot of objective function")
@@ -187,14 +195,6 @@ if __name__ == '__main__':
     plt.plot(xaxis, obj, color = "red", linewidth = 2)
     plt.show()
     
-
-
-    # for i in range(1,7):
-    #     temp, dum = kmeans(X, i, 100)
-    #     labels.append(temp)
-    #     pure.append(purity(temp,trueLabels))
-    # print pure
-
 
 
     # # hard code for testing and debug
