@@ -11,9 +11,9 @@ import numpy as np
 
 
 np.random.seed()
-a = np.random.random((2,4))
-b = np.random.random((2,4))
+a = np.random.random(5)
+b = np.random.random((2, 2))
+print np.argsort(a)
 print a
-print b
-print a - b
+
 

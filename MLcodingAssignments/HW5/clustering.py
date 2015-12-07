@@ -7,6 +7,7 @@
 
 import sys
 import os
+import copy as c
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -124,6 +125,8 @@ def kmeans(X, k, maxIter):
     # for i in range(k):
     #     plt.scatter(clusters[i].T[0], clusters[i].T[1], 2, color = colors[i])
     # plt.show()
+    print "seeds"
+    print seeds
     return labels, objectiveFunc
 
 def purity(labels, trueLabels): #claculate to purity of the cluster
@@ -164,6 +167,102 @@ def objFunc(ins, labels, seeds):
         # break
     return sum(obj)
 
+def gmmCluster(X, k, covType, maxIter): # the guassian mixture model clustering
+    instances = X[:, :-1]
+    tolerance = 0.00000000001
+    diff = 1000000
+    count = 0
+    cov = np.cov(instances.T)
+    if covType == "diag":
+        cov = np.diag(np.diag(cov))
+    det_cov = np.linalg.det(cov)
+    seeds = seed(X, k)
+    ins_num = len(instances)
+    dim = len(instances[0])
+    prob_xi_muj = np.zeros((ins_num, k))
+    Ezij = np.zeros((ins_num, k))
+    prob_mu = np.zeros(k)
+    prob_mu += 1/float(k)
+
+    while(diff > tolerance and count < maxIter):
+        count += 1
+        print count
+
+        # update prob_xi_muj
+        for i in range(ins_num):
+            for j in range(k):
+                temp_dinom = det_cov
+                # temp_dinom = temp_dinom * np.power((2 * np.pi), dim)
+                temp_dinom = np.sqrt(temp_dinom)
+                x_sub_mu = instances[i] - seeds[j]
+                temp = np.dot(x_sub_mu, np.linalg.inv(cov))
+                temp = np.dot(temp, x_sub_mu.T)
+                temp = -0.5 * temp
+                temp = np.exp(temp)
+                prob_xi_muj[i, j] = float(temp) / float(temp_dinom)
+
+
+
+        #update Ezij (E-step)
+        for i in range(ins_num):
+            denom = sum(prob_xi_muj[i] * prob_mu)
+            for j in range(k): 
+                Ezij[i, j] = prob_xi_muj[i, j] * prob_mu[j] / denom
+
+
+        #update muj and prob_mu, M-step
+
+        # print instances.shape
+        # print Ezij.shape
+        tempseeds = c.copy(seeds)
+
+        for i in range(k):
+            nom = 0
+            denom = 0
+            for j in range(ins_num):
+                # print Ezij.T[i, j] #* instances
+                nom += Ezij.T[i, j] * instances[j]
+                denom += Ezij.T[i, j]
+            # print nom
+            # print denom
+            seeds[i] = nom/denom
+        # print seeds
+        # print tempseeds
+
+        diff = np.linalg.norm(seeds - tempseeds)
+        print diff
+    # print Ezij
+    labels = np.zeros(ins_num)
+    for i in range(ins_num):
+        labels[i] = np.argsort(Ezij[i])[-1] + 1
+    print labels
+    clusters = []
+    for i in range(k):
+        clusters.append([])
+    for i in range(len(labels)):
+        clusters[int(labels[i] - 1)].append(instances[i])
+    for i in range(len(clusters)):
+        clusters[i] = np.asarray(clusters[i])
+
+    colors = ["blue", "yellow", "red", "green", "black", "orange", "purple"]
+
+    plt.title("Scatter plot of clusters")
+    for i in range(k):
+        plt.scatter(clusters[i].T[0], clusters[i].T[1], 2, color = colors[i])
+    plt.show()
+
+    
+
+
+
+
+    # print cov.shape
+
+    return
+
+
+
+
 if __name__ == '__main__':
     # model = sys.argv[1]
     # train = sys.argv[2]
@@ -171,90 +270,48 @@ if __name__ == '__main__':
 
     path1 = "data_sets_clustering/humanData.txt"
     path2 = "data_sets_clustering/audioData.txt"
+
+
+   
+
+
+###########################   Task 1 K-means
+
+    X = LoadData(path1)
+    trueLabels = X.T[-1]
+    labels = []
+    pure = []
+    obj = []
+##################### Objctive funciton and purity
+
+    # for i in range(1, 7):
+    # for i in range(2,3):
+    #     temp, objfunc = kmeans(X, i, 2000)
+    #     obj.append(objfunc)
+    #     labels.append(temp)
+    #     pure.append(purity(temp,trueLabels))
+    # print obj
+    # print pure
+
+##################### Plot only for path 1
+    # xaxis = range(1,7)
+
+    # plt.title("plot of objective function")
+    
+    # plt.plot(xaxis, obj, color = "red", linewidth = 2)
+    # plt.show()
+    
+
+
+# ###########################   Task 2 GMM
+
     X = LoadData(path1)
     trueLabels = X.T[-1]
     labels = []
     pure = []
     obj = []
 
-##################### Objctive funciton and purity
-
-    for i in range(1, 7):
-        temp, objfunc = kmeans(X, i, 2000)
-        obj.append(objfunc)
-        labels.append(temp)
-        pure.append(purity(temp,trueLabels))
-    print obj
-    print pure
-
-##################### Plot only for path 1
-    xaxis = range(1,7)
-
-    plt.title("plot of objective function")
-    
-    plt.plot(xaxis, obj, color = "red", linewidth = 2)
-    plt.show()
-    
-
-
-    # # hard code for testing and debug
-
-    # # model = "pcasvm"
-
-    # # train = "zip.train"
-    # # test = "zip.test"
-
-    # # read_in_data(train , test)
-    # xtrain, ytrain, xtest, ytest = read_in_data(train, test)
-
-    # train = (xtrain, ytrain)
-    # test = (xtest, ytest)
-
-    # #----------------------------
-
-
-
-    # if model == "dtree":
-    #     print(decision_tree(train, test))
-    # elif model == "knn":
-    #     print(knn(train, test))
-    # elif model == "net":
-    #     print(neural_net(train, test))
-    # elif model == "svm":
-    #     print(svm(train, test))
-    # elif model == "pcaknn":
-    #     print(pca_knn(train, test))
-    # elif model == "pcasvm":
-    #     print(pca_svm(train, test))
-    # else:
-    #     print("Invalid method selected!")
-
-    #-------------------------------------
-
-
-    # test and experiment
-
-    # combo_result = []
-    # # combo_result.append("decision_tree")
-    # # combo_result.append(decision_tree(train, test))
-    # # combo_result.append("knn")
-    # # combo_result.append(knn(train, test))
-    # # combo_result.append("neural_net")
-    # # combo_result.append(neural_net(train, test))
-    # # combo_result.append("svm")
-    # # combo_result.append(svm(train, test))
-    # combo_result.append("pca_knn")
-    # combo_result.append(pca_knn(train, test))
-    # # combo_result.append("pca_svm")
-    # # combo_result.append(pca_svm(train, test))
-
-    # # outfile = open("result_combo.txt", 'w')
-    # # for item in combo_result:
-    # #     outfile.write(item)
-    # #     outfile.write('\n')
-    # # outfile.close()
-
-    # print combo_result
+    gmmCluster(X, 2, "full", 200)
 
 
 
