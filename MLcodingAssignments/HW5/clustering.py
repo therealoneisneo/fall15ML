@@ -69,7 +69,10 @@ def updateseed(X, labels, seeds):
     num = len(seeds)
     # print seeds
     for i in range(num):
-        newseeds[i] = sums[i]/count[i]
+        if count[i] == 0:
+            newseeds[i] = sums[i]
+        else:
+            newseeds[i] = sums[i]/count[i]
     # print seeds
 
     return newseeds
@@ -83,11 +86,12 @@ def kmeans(X, k, maxIter):
     tolerance = 0.00000001
     diff = 100000
     print "kmeans processing..."
+    print "k = " + str(k)
     seeds = seed(X, k)
     count = 0
     while (count < maxIter):
         count += 1
-        print "iteration: " + str(count)
+        # print "iteration: " + str(count) 
         for i in range(num):
             dis = 100000000000
             for j in range(k):
@@ -104,7 +108,7 @@ def kmeans(X, k, maxIter):
         if diffsum < tolerance:
             print diffsum
             break
-        print diffsum
+        # print diffsum
         # break
         # break  # or diff > tolerance
 
@@ -119,33 +123,36 @@ def kmeans(X, k, maxIter):
         clusters[int(labels[i])].append(instances[i])
     for i in range(len(clusters)):
         clusters[i] = np.asarray(clusters[i])
-    colors = ["blue", "yellow", "red", "green", "black", "orange", "purple"]
+    colors = ["red", "blue", "yellow",  "green", "black", "orange", "purple"]
 
-    # plt.title("Scatter plot of clusters")
-    # for i in range(k):
-    #     plt.scatter(clusters[i].T[0], clusters[i].T[1], 2, color = colors[i])
-    # plt.show()
-    print "seeds"
-    print seeds
+    plt.title("Scatter plot of clusters")
+    if len(clusters) == 2:
+        for i in range(k):
+        # for i in [1]:
+            plt.scatter(clusters[i].T[0], clusters[i].T[1], 2, color = colors[i])
+        plt.show()
+    # print "seeds"
+    # print seeds
     return labels, objectiveFunc
 
-def purity(labels, trueLabels): #claculate to purity of the cluster
-    check = set(labels)
+def purity(labels, trueLabels): #claculate the purity of cluster
+    check = set(labels - 1)
     # print check
     clusternum = len(check)
-    check = set(trueLabels)
+    check = set(trueLabels - 1)
     trueclusternum = len(check)
     count = np.zeros(clusternum)
     countMatrix = np.zeros((clusternum, trueclusternum))
     puri = np.zeros(clusternum)
     # print countMatrix[0, 0]
+    # print check
 
 
     for i in range(len(labels)):
-        count[labels[i]] += 1
+        count[labels[i] - 1] += 1
 
     for i in range(len(labels)):
-        countMatrix[labels[i], trueLabels[i] - 1] += 1
+        countMatrix[labels[i] - 1, trueLabels[i] - 1] += 1
     # print countMatrix
     for i in range(clusternum):
         puri[i] = np.max(countMatrix[i])
@@ -168,7 +175,9 @@ def objFunc(ins, labels, seeds):
     return sum(obj)
 
 def gmmCluster(X, k, covType, maxIter): # the guassian mixture model clustering
+    print "GMM processing"
     instances = X[:, :-1]
+    trueLabels = X[:, -1]
     tolerance = 0.00000000001
     diff = 1000000
     count = 0
@@ -186,7 +195,7 @@ def gmmCluster(X, k, covType, maxIter): # the guassian mixture model clustering
 
     while(diff > tolerance and count < maxIter):
         count += 1
-        print count
+        # print "iterations: " + str(count)
 
         # update prob_xi_muj
         for i in range(ins_num):
@@ -230,12 +239,13 @@ def gmmCluster(X, k, covType, maxIter): # the guassian mixture model clustering
         # print tempseeds
 
         diff = np.linalg.norm(seeds - tempseeds)
-        print diff
+    print "total iterations :" + str(count)
+    print "final diff : " + str(diff)
     # print Ezij
     labels = np.zeros(ins_num)
     for i in range(ins_num):
         labels[i] = np.argsort(Ezij[i])[-1] + 1
-    print labels
+    # print labels
     clusters = []
     for i in range(k):
         clusters.append([])
@@ -244,7 +254,7 @@ def gmmCluster(X, k, covType, maxIter): # the guassian mixture model clustering
     for i in range(len(clusters)):
         clusters[i] = np.asarray(clusters[i])
 
-    colors = ["blue", "yellow", "red", "green", "black", "orange", "purple"]
+    colors = ["red","blue", "yellow",  "green", "black", "orange", "purple"]
 
     plt.title("Scatter plot of clusters")
     for i in range(k):
@@ -258,18 +268,18 @@ def gmmCluster(X, k, covType, maxIter): # the guassian mixture model clustering
 
     # print cov.shape
 
-    return
+    return labels
 
 
 
 
 if __name__ == '__main__':
-    # model = sys.argv[1]
-    # train = sys.argv[2]
-    # test = sys.argv[3]
+    path = sys.argv[1]
+    # path = "data_sets_clustering"
+    
 
-    path1 = "data_sets_clustering/humanData.txt"
-    path2 = "data_sets_clustering/audioData.txt"
+    path1 = os.path.join(path, "humanData.txt")
+    path2 =  os.path.join(path, "audioData.txt")
 
 
    
@@ -284,22 +294,24 @@ if __name__ == '__main__':
     obj = []
 ##################### Objctive funciton and purity
 
-    # for i in range(1, 7):
-    # for i in range(2,3):
-    #     temp, objfunc = kmeans(X, i, 2000)
-    #     obj.append(objfunc)
-    #     labels.append(temp)
-    #     pure.append(purity(temp,trueLabels))
-    # print obj
-    # print pure
+    for i in range(1, 7):
+    # for i in range(2, 3):
+        temp, objfunc = kmeans(X, i, 2000)
+        obj.append(objfunc)
+        labels.append(temp)
+        pure.append(purity(temp,trueLabels))
+    print "The objective function under k from 1 to 6 are: "
+    print obj
+    print "The cluster purity under k from 1 to 6 are: "
+    print pure
 
 ##################### Plot only for path 1
-    # xaxis = range(1,7)
+    xaxis = range(1,7)
 
-    # plt.title("plot of objective function")
+    plt.title("plot of objective function")
     
-    # plt.plot(xaxis, obj, color = "red", linewidth = 2)
-    # plt.show()
+    plt.plot(xaxis, obj, color = "red", linewidth = 2)
+    plt.show()
     
 
 
@@ -307,12 +319,19 @@ if __name__ == '__main__':
 
     X = LoadData(path1)
     trueLabels = X.T[-1]
-    labels = []
-    pure = []
-    obj = []
+    labels = gmmCluster(X, 2, "full", 130)
+    print "purity of GMM on dataset1 with full cov = " 
+    print purity(labels, trueLabels)
 
-    gmmCluster(X, 2, "full", 200)
+    labels = gmmCluster(X, 2, "diag", 130)
+    print "purity of GMM on dataset1 with diag cov = " 
+    print purity(labels, trueLabels)
 
+    X = LoadData(path2)
+    trueLabels = X.T[-1]
+    labels = gmmCluster(X, 2, "diag", 130)
+    print "purity of GMM on dataset2 with diag cov = " 
+    print purity(labels, trueLabels)
 
 
 
