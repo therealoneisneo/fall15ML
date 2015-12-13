@@ -1,12 +1,12 @@
 import numpy as np
 import DataProcess as dp
-import tensorflow as tf
 
 
-a = tf.Variable(tf.random_normal([20,50], stddev = 1.2), name = "weights")
+dic = {}
+print dic
+dic[3] = []
 
-print a
+print dic
 
-
-
-# print a 
+dic[3].append(2)
+print dic

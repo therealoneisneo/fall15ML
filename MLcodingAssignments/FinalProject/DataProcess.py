@@ -667,17 +667,46 @@ class trainingData:
 		# print check
 		return Dic
 
+	def data4hmm(self): # transform the full data in to groups, each group is the sentenses from a single actor in a single conversation of a singel session. the returned groupDic is a dictionary can 
+		Dic = self.InstanceDic
+		groupDic = {} # the dictionary of lists, the key is the group's name, the value is a list of instance objects belong to the group
+		groupNameSet = set()  # coresponding set to track the groups in the groupDic
+		for key in Dic:
+			groupname = Dic[key].FileName[:-3]
+			if groupname not in groupNameSet:
+				temp = []
+				temp.append(Dic[key])
+				groupDic[groupname] = temp
+				groupNameSet.add(groupname)
+			else:
+				groupDic[groupname].append(Dic[key])
+		featureList = []
+
+		fp = featureProcessing()
+
+		for key in groupDic:
+			tempDic = {}
+			for item in groupDic[key]:
+				tempDic[item.FileName] = item
+			trainX , trainy = fp.getTrainData(tempDic)
+			featureList.append((trainX, trainy))
+
+		return featureList
+
+	
+
 if __name__ == "__main__":
 	
 	Tdata = trainingData()
 	Tdata.getTrainingData("train.data", True)
-	Dic = Tdata.xxxtrans();
+	# Dic = Tdata.xxxtrans();
+	featureList = Tdata.data4hmm()
 
-	print len(Dic)
+	# print len(Dic)
 
-	fp = featureProcessing()
+	# fp = featureProcessing()
 
-	fp.writeFile(Dic, "train1.data")
+	# fp.writeFile(Dic, "train1.data")
 	
 	# a,b,c,d = Tdata.leave1SesOut(2)
 
@@ -691,56 +720,5 @@ if __name__ == "__main__":
 
 	# print len(d[0])
 	
-
-
-	
-	# mode = "debug"
-
-	# processed = True
-
-	# # processed = not processed
-
-	# # print processed
-	# fp = featureProcessing()
-
-	# if not processed:
-	# 	labels = readLabel()
-	# 	if mode == "full":
-	# 		InstanceVec = labels.labelVectorGen(1, 5)
-	# 	else:
-	# 		InstanceVec = labels.labelVectorGen(1, 1)
-	# 	# print type(InstanceVec)
-	# 	InstanceDic = labels.insVec2Dic(InstanceVec)
-
-
-	# 	audios = readAudio()
-	# 	if mode == "full":
-	# 		featureVecDic = audios.featureDicGen(1, 5)
-	# 	else:
-	# 		featureVecDic = audios.featureDicGen(1, 1)
-
-	# 	for item in InstanceDic:
-	# 		# print item
-	# 		InstanceDic[item].featureVec.extend(featureVecDic[item])
-
-
-
-		
-	# 	InstanceDic = fp.normalization(InstanceDic)
-
-
-		
-	# 	fp.writeFile(InstanceDic, "traindata.dtxt")
-
-	# InstanceDic = fp.readInFile("traindata.dtxt")
-
-	# print len(InstanceDic)
-	# # fp.writeFile(testinsDic, "2.dtxt")
-	# # for item in InstanceDic:
-	# # 	InstanceDic[item].display()
-	# trainX, trainy = fp.getTrainData(InstanceDic)
-
-	# debug(trainX, "trainX")
-	# debug(trainy, "trainy")
 
 
