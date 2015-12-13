@@ -428,12 +428,26 @@ class featureProcessing: # the class for the processing of instances features ma
 
 		return InstanceDic
 
-	def getTrainData(self, InstanceDic):
+	def getTrainData(self, InstanceDic, sort = False): # sort is the option sorting result
 		trainX = []
 		trainy = []
+		name = []
 		for key in InstanceDic:
 			trainX.append(InstanceDic[key].featureVec)
 			trainy.append(InstanceDic[key].trainingLabel)
+			name.append(InstanceDic[key].FileName)
+		if sort:
+			alt_trainX = []
+			alt_trainy = []
+			# alt_name = []
+			sort_idx = np.argsort(name)
+
+			for idx in sort_idx:
+				alt_trainX.append(trainX[idx])
+				alt_trainy.append(trainy[idx])
+				# alt_name.append(name[idx])
+			# print alt_name
+			return alt_trainX, alt_trainy
 
 		return trainX, trainy
 
@@ -680,6 +694,7 @@ class trainingData:
 				groupNameSet.add(groupname)
 			else:
 				groupDic[groupname].append(Dic[key])
+
 		featureList = []
 
 		fp = featureProcessing()
@@ -688,9 +703,8 @@ class trainingData:
 			tempDic = {}
 			for item in groupDic[key]:
 				tempDic[item.FileName] = item
-			trainX , trainy = fp.getTrainData(tempDic)
+			trainX , trainy = fp.getTrainData(tempDic, True)
 			featureList.append((trainX, trainy))
-
 		return featureList
 
 	
