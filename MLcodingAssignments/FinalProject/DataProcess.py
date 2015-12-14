@@ -685,39 +685,29 @@ class trainingData:
 		Dic = self.InstanceDic
 		groupDic = {} # the dictionary of lists, the key is the group's name, the value is a list of instance objects belong to the group
 		groupNameSet = set()  # coresponding set to track the groups in the groupDic
+
+		# form up groupDic
 		for key in Dic:
-			groupname = Dic[key].FileName[:-3]
+			# groupname = Dic[key].FileName[:-3]
+			tempname = Dic[key].FileName.split('_')
+			groupname = tempname[0] + tempname[1] + tempname[-1][0]
+			# print tgname
+			# groupname = Dic[key].FileName.
 			if groupname not in groupNameSet:
-				# if groupname[-2] == '_' and groupname[-4] == '_':
-				# 	print groupname
-				# print groupname
 				temp = []
 				temp.append(Dic[key])
 				groupDic[groupname] = temp
 				groupNameSet.add(groupname)
 			else:
 				groupDic[groupname].append(Dic[key])
-		groupDic = {}
-		testlist = []
-		# print "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS"
-		for i in range(len(featureList)):
-			parse = featureList[i][2][0].split('_')
-			if len(parse) == 4:
-				testlist.append(featureList[i][2][0])
-				# print featureList[i][2][0]
-		testlist.sort()
-		for i in testlist:
-			print i
-
-
-
-
 
 
 		featureList = []
 
 		fp = featureProcessing()
 
+
+		# form up the featureList
 		for key in groupDic:
 			tempDic = {}
 			for item in groupDic[key]:
@@ -725,8 +715,8 @@ class trainingData:
 				# print item.FileName
 			trainX, trainy, name = fp.getTrainData(tempDic, True)
 			featureList.append((trainX, trainy, name))
-
-		# need to combine the segments in the same conversation
+		# for i in featureList:
+		# 	fdebug(i[2], "featureList")
 		
 		return featureList
 
