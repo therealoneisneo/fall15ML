@@ -439,17 +439,17 @@ class featureProcessing: # the class for the processing of instances features ma
 		if sort:
 			alt_trainX = []
 			alt_trainy = []
-			# alt_name = []
+			alt_name = []
 			sort_idx = np.argsort(name)
 
 			for idx in sort_idx:
 				alt_trainX.append(trainX[idx])
 				alt_trainy.append(trainy[idx])
-				# alt_name.append(name[idx])
+				alt_name.append(name[idx])
 			# print alt_name
-			return alt_trainX, alt_trainy
+			return alt_trainX, alt_trainy, alt_name
 
-		return trainX, trainy
+		return trainX, trainy, name
 
 	def writeFile(self, InstanceDic, DestFileName): # write all processed data to file
 		outfile = open(DestFileName, 'w')
@@ -540,7 +540,7 @@ class trainingData:
 
 		InstanceDic = fp.readInFile(datafilename)
 
-		trainX, trainy = fp.getTrainData(InstanceDic)
+		trainX, trainy, name = fp.getTrainData(InstanceDic)
 
 		# debug(trainX, "trainX")
 		# debug(trainy, "trainy")
@@ -688,12 +688,31 @@ class trainingData:
 		for key in Dic:
 			groupname = Dic[key].FileName[:-3]
 			if groupname not in groupNameSet:
+				# if groupname[-2] == '_' and groupname[-4] == '_':
+				# 	print groupname
+				# print groupname
 				temp = []
 				temp.append(Dic[key])
 				groupDic[groupname] = temp
 				groupNameSet.add(groupname)
 			else:
 				groupDic[groupname].append(Dic[key])
+		groupDic = {}
+		testlist = []
+		# print "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS"
+		for i in range(len(featureList)):
+			parse = featureList[i][2][0].split('_')
+			if len(parse) == 4:
+				testlist.append(featureList[i][2][0])
+				# print featureList[i][2][0]
+		testlist.sort()
+		for i in testlist:
+			print i
+
+
+
+
+
 
 		featureList = []
 
@@ -703,8 +722,12 @@ class trainingData:
 			tempDic = {}
 			for item in groupDic[key]:
 				tempDic[item.FileName] = item
-			trainX , trainy = fp.getTrainData(tempDic, True)
-			featureList.append((trainX, trainy))
+				# print item.FileName
+			trainX, trainy, name = fp.getTrainData(tempDic, True)
+			featureList.append((trainX, trainy, name))
+
+		# need to combine the segments in the same conversation
+		
 		return featureList
 
 	
