@@ -726,26 +726,27 @@ if __name__ == "__main__":
 	
 	Tdata = trainingData()
 	Tdata.getTrainingData("train.data", True)
-	# Dic = Tdata.xxxtrans();
-	featureList = Tdata.data4hmm()
-
-	# print len(Dic)
-
-	# fp = featureProcessing()
-
-	# fp.writeFile(Dic, "train1.data")
 	
-	# a,b,c,d = Tdata.leave1SesOut(2)
+	# featureList = Tdata.data4hmm()
+	originalcountDic = {}
+	xdic = {}
+	for key in Tdata.InstanceDic:
+		label = Tdata.InstanceDic[key].trainingLabel
+		if originalcountDic.has_key(label):
+			originalcountDic[label] += 1
+		else:
+			originalcountDic[label] = 1
 
-	# a,b,c,d = Tdata.male_female("F")
-	# a,b,c,d = Tdata.controlCV(5)
+	Dic = Tdata.xxxtrans();
 
 
-	# print len(a[0])
-	# print len(b[0])
-	# print len(c[0])
-
-	# print len(d[0])
-	
+	for key in Dic:
+		label = Tdata.InstanceDic[key].trainingLabel
+		if xdic.has_key(label):
+			xdic[label] += 1
+		else:
+			xdic[label] = 1
+	print originalcountDic
+	print xdic
 
 
